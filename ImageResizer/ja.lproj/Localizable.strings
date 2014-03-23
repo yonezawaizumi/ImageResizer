@@ -1,0 +1,32 @@
+/* 
+  Localizable.strings
+  ImageResizer
+
+  Created by よねざわいずみ on 2014/01/03.
+  Copyright (c) 2014年 よねざわいずみ. All rights reserved.
+*/
+
+"Select an Album" = "アルバム";
+"Pick Photo" = "写真";
+"Pick Photos" = "写真";
+"Only %d photos please!" = "枚数制限";
+"You can only send %d photos at a time." = "写真は %d 枚まで選べます";
+"Okay" = "OK";
+
+"unknown location" = "撮影地情報なし";
+"unknown datetime" = "撮影日時情報なし";
+"%hu x %hu -> %hu X %hu" = "%hu x %hu → %hu X %hu";
+"Failed" = "失敗";
+"Failed %d Resizing" = "%d 枚の写真のリサイズに失敗しました";
+"Succeeded" = "リサイズ完了";
+"Resized %d Photos" = "%d 枚の写真をリサイズしました";
+"Clear All Resizing" = "写真を選びなおします";
+"Abort" = "中止";
+"Clear" = "選びなおす";
+"Uniform Long Side Sizes" = "長辺サイズをそろえます";
+"Set" = "セット";
+"Cancel" = "キャンセル";
+"Cannot Send Mail" = "メールが送信できません";
+"Attached Photos In Mail" = "メールに添付した写真";
+"Leave In Album" = "カメラロールに保存";
+"Remove From Album" = "保存しない";

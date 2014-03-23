@@ -1,0 +1,39 @@
+
+/* Class = "IBUILabel"; text = "Title"; ObjectID = "3A8-EW-0Ru"; */
+"3A8-EW-0Ru.text" = "Title";
+
+/* Class = "IBUILabel"; text = "Title"; ObjectID = "4rZ-KR-z40"; */
+"4rZ-KR-z40.text" = "Title";
+
+/* Class = "IBUITableViewController"; title = "Image Resizer"; ObjectID = "CeM-1w-tyR"; */
+"CeM-1w-tyR.title" = "イメージリサイズ";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "DOM-KW-1kt"; */
+"DOM-KW-1kt.text" = "Label";
+
+/* Class = "IBUITableViewController"; title = "Select size"; ObjectID = "Fxm-fB-vG6"; */
+"Fxm-fB-vG6.title" = "サイズ選択";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "Riu-B3-wOB"; */
+"Riu-B3-wOB.text" = "Label";
+
+/* Class = "IBUILabel"; text = "Subtitle"; ObjectID = "T2n-Sq-zPl"; */
+"T2n-Sq-zPl.text" = "Subtitle";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "a8g-WW-mKM"; */
+"a8g-WW-mKM.text" = "Label";
+
+/* Class = "IBUILabel"; text = "Label"; ObjectID = "tIG-0K-ddn"; */
+"tIG-0K-ddn.text" = "Label";
+
+/* Class = "IBUINavigationItem"; title = "Image Risizer"; ObjectID = "wD7-4j-61u"; */
+"wD7-4j-61u.title" = "イメージリサイズ";
+
+/* Class = "IBUIBarButtonItem"; title = "Default Size"; ObjectID = "yqx-4r-Ekw"; */
+"yqx-4r-Ekw.title" = "そろえる";
+"rpv-kC-GK7.title" = "サイズ選択";
+"obs-1B-Hg1.title" = "クリア";
+"D58-5r-0je.title" = "メール";
+
+"Tfg-Sz-fw3.title" = "設定";
+"zFJ-Ah-ATL.title" = "設定";
