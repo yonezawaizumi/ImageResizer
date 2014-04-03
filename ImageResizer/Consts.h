@@ -15,5 +15,7 @@
 
 #define USER_DEFAULTS_KEY_DEFAULT_RESIZED_LONG_SIZE_LENGTH  @"LongSideLength"
 #define USER_DEFAULTS_KEY_LEAVE_MAIL_PHOTOS                 @"LeaveMailPhotos"
+#define USER_DEFAULTS_KEY_SHOW_CAMERA_ROLL_DIRECTLY         @"ShowCameraRollDirectly"
+#define USER_DEFAULTS_KEY_RECENT_ALBUM_ID                   @"RecentAlbumId"
 
 #endif

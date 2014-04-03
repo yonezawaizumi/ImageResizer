@@ -22,6 +22,7 @@ enum {
     Title2 = 3,
     LatLng = 4,
     Placement = 5,
+    Content = 99,
 };
 
 @implementation SelectSizeViewController
@@ -30,7 +31,6 @@ enum {
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-
     self.currentRow = -1;
 }
 
@@ -64,11 +64,12 @@ enum {
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 1;
+    return 2;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
+    if (!section)   return 0;
     SizeManager *sizeManager = [SizeManager sharedInstance];
     return sizeManager.longSideLengths.count;
 }
@@ -100,22 +101,24 @@ enum {
     NSInteger row = indexPath.row;
     if (row != self.currentRow) {
         [tableView cellForRowAtIndexPath:indexPath].accessoryType = UITableViewCellAccessoryCheckmark;
-        [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:self.currentRow inSection:0]].accessoryType = UITableViewCellAccessoryNone;
+        [tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:self.currentRow inSection:1]].accessoryType = UITableViewCellAccessoryNone;
         self.currentRow = row;
     }
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
+    if (section)    return 0;
     if (!self.header) {
-        self.header = [tableView dequeueReusableCellWithIdentifier:@"Header"];
+        self.header = [[tableView dequeueReusableCellWithIdentifier:@"Header"] viewWithTag:Content];
     }
     return self.header.frame.size.height;
 }
 
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
 {
+    if (section)   return nil;
     UIImageView *imageView = (UIImageView *)[self.header viewWithTag:Image];
     imageView.image = self.photoData.image;
 

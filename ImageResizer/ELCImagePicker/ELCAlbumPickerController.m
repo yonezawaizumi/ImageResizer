@@ -9,6 +9,8 @@
 #import "ELCImagePickerController.h"
 #import "ELCAssetTablePicker.h"
 
+#import "Consts.h"
+
 @interface ELCAlbumPickerController ()
 
 @property (nonatomic, strong) ALAssetsLibrary *library;
@@ -28,7 +30,7 @@
 	
 	[self.navigationItem setTitle:@"Loading..."];
 
-    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self.parent action:@selector(cancelImagePicker)];
+    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancel)];
 	[self.navigationItem setRightBarButtonItem:cancelButton];
 
     NSMutableArray *tempArray = [[NSMutableArray alloc] init];
@@ -37,6 +39,9 @@
     ALAssetsLibrary *assetLibrary = [[ALAssetsLibrary alloc] init];
     self.library = assetLibrary;
 
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSString *recentAlbumId = [defaults objectForKey:USER_DEFAULTS_KEY_RECENT_ALBUM_ID];
+    
     // Load Albums into assetGroups
     dispatch_async(dispatch_get_main_queue(), ^
     {
@@ -46,14 +51,24 @@
             void (^assetGroupEnumerator)(ALAssetsGroup *, BOOL *) = ^(ALAssetsGroup *group, BOOL *stop) 
             {
                 if (group == nil) {
+                    //TODO: enumeration finished
+                    [self reloadTableView];
+                    int index = 0;
+                    for (ALAssetsGroup *group in self.assetGroups) {
+                        if (recentAlbumId && ![recentAlbumId compare:[group valueForProperty:ALAssetsGroupPropertyPersistentID]]) {
+                            [self showPickerWithRow:index animated:NO];
+                            return;
+                        }
+                        ++index;
+                    }
                     return;
                 }
                 
                 // added fix for camera albums order
-                NSString *sGroupPropertyName = (NSString *)[group valueForProperty:ALAssetsGroupPropertyName];
                 NSUInteger nType = [[group valueForProperty:ALAssetsGroupPropertyType] intValue];
                 
-                if ([[sGroupPropertyName lowercaseString] isEqualToString:@"camera roll"] && nType == ALAssetsGroupSavedPhotos) {
+                // cut english only and ugly code
+                if (/*[[sGroupPropertyName lowercaseString] isEqualToString:@"camera roll"] && */nType == ALAssetsGroupSavedPhotos) {
                     [self.assetGroups insertObject:group atIndex:0];
                 }
                 else {
@@ -61,7 +76,7 @@
                 }
 
                 // Reload albums
-                [self performSelectorOnMainThread:@selector(reloadTableView) withObject:nil waitUntilDone:YES];
+                //[self performSelectorOnMainThread:@selector(reloadTableView) withObject:nil waitUntilDone:YES];
             };
             
             // Group Enumerator Failure Block
@@ -80,6 +95,13 @@
         
         }
     });    
+}
+
+- (void)cancel
+{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults removeObjectForKey:USER_DEFAULTS_KEY_RECENT_ALBUM_ID];
+    [(ELCImagePickerController *)self.parent cancelImagePicker];
 }
 
 - (void)reloadTableView
@@ -142,17 +164,25 @@
 #pragma mark -
 #pragma mark Table view delegate
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+- (void)showPickerWithRow:(NSInteger)row animated:(BOOL)animated
 {
 	ELCAssetTablePicker *picker = [[ELCAssetTablePicker alloc] initWithNibName: nil bundle: nil];
 	picker.parent = self;
-
-    picker.assetGroup = [self.assetGroups objectAtIndex:indexPath.row];
+    
+    picker.assetGroup = [self.assetGroups objectAtIndex:row];
     [picker.assetGroup setAssetsFilter:[ALAssetsFilter allPhotos]];
     
 	picker.assetPickerFilterDelegate = self.assetPickerFilterDelegate;
 	
-	[self.navigationController pushViewController:picker animated:YES];
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:[picker.assetGroup valueForProperty:ALAssetsGroupPropertyPersistentID] forKey:USER_DEFAULTS_KEY_RECENT_ALBUM_ID];
+
+	[self.navigationController pushViewController:picker animated:animated];
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [self showPickerWithRow:indexPath.row animated:YES];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
