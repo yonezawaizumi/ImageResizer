@@ -170,7 +170,7 @@
                             <outlet property="delegate" destination="Pb7-Lk-Aw2" id="QCI-ka-Fud"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="ISv-wV-jaw"/>
+                    <navigationItem key="navigationItem" title="Select Size" id="ISv-wV-jaw"/>
                     <connections>
                         <outlet property="tableView" destination="bgl-FH-iZ3" id="N6q-Ux-Bbq"/>
                     </connections>

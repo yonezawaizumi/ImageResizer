@@ -59,8 +59,13 @@ enum {
 
 - (void)viewDidAppear:(BOOL)animated
 {
-    [super viewDidAppear:animated];
+    AppDelegate *appDelegate = [UIApplication sharedApplication].delegate;
+    [super viewDidAppear:animated && !appDelegate.showSelectView];
     [self updateButtons];
+    if (appDelegate.showSelectView) {
+        [self showPicker:nil];
+        appDelegate.showSelectView = NO;
+    }
 }
 
 - (void)viewDidDisappear:(BOOL)animated
@@ -213,16 +218,19 @@ enum {
 
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
 {
+    BOOL showSelectView = NO;
     switch (result) {
         case MFMailComposeResultCancelled:
             break;
         default:
             [self clearAll:nil];
+            showSelectView = YES;
             break;
     }
     [controller dismissViewControllerAnimated:YES completion:nil];
     self.tableView.userInteractionEnabled = YES;
     [self updateButtons];
+    [self showPicker:nil];
 }
 
 - (void)savePhotos:(SEL)selector toAssetsLibrary:(BOOL)toAssetsLibrary
@@ -354,6 +362,7 @@ enum {
 
 - (void)alertView:(UIAlertView*)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
+    BOOL showSelectView = NO;
     ((AppDelegate *)[UIApplication sharedApplication].delegate).modalView = nil;
     switch(alertView.tag) {
         case AlertClearAll:
@@ -362,12 +371,16 @@ enum {
                     break;
                 case 1:
                     [self clearAll:nil];
+                    showSelectView = YES;
                     break;
             }
             break;
         case AlertMailDisabled:
             [self updateButtons];
             break;
+    }
+    if (showSelectView) {
+        [self showPicker:nil];
     }
 }
 
@@ -561,6 +574,7 @@ enum {
  7	上下反転、時計周りに90度回転
  8	時計周りに270度回転
  */
+    // TODO: 壊れたデータを読んだ場合の対策が必要
     CGContextRef bitmap = CGBitmapContextCreate(NULL, size.width, size.height, CGImageGetBitsPerComponent(imageRef), CGImageGetBytesPerRow(imageRef), colorSpaceInfo, bitmapInfo);
     
     CGFloat w, h;
