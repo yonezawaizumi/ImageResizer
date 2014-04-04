@@ -11,8 +11,5 @@
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
-@property (strong, nonatomic) UIView *modalView;
-@property (assign, nonatomic) NSInteger modalViewCancelIndex;
-@property (assign, nonatomic) BOOL showSelectView;
 
 @end

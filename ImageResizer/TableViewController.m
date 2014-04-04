@@ -23,7 +23,10 @@
 @interface TableViewController ()
 
 @property(nonatomic, strong) NSMutableArray *photoData;
+@property(strong, nonatomic) UIView *modalView;
+@property(assign, nonatomic) NSInteger modalViewCancelIndex;
 @property(nonatomic, assign) BOOL dirty;
+@property(nonatomic, assign) BOOL initial;
 
 @end
 
@@ -35,11 +38,38 @@ enum {
 
 @implementation TableViewController
 
+- (id)init
+{
+    self = [super init];
+    if (self) {
+        self.initial = YES;
+    }
+    return self;
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        self.initial = YES;
+    }
+    return self;
+}
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        self.initial = YES;
+    }
+    return self;
+}
+
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
     if (self) {
-        // Custom initialization
+        self.initial = YES;
     }
     return self;
 }
@@ -55,16 +85,45 @@ enum {
  
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center addObserver:self
+               selector:@selector(ApplicationDidEnterBackground)
+                   name:UIApplicationDidEnterBackgroundNotification
+                 object:nil];
+    [center addObserver:self
+               selector:@selector(applicationDidBecomeActive)
+                   name:UIApplicationDidBecomeActiveNotification
+                 object:nil];
 }
+
+- (void)ApplicationDidEnterBackground
+{
+    if (self.modalView) {
+        if ([self.modalView isKindOfClass:[UIAlertView class]]) {
+            [(UIAlertView *)self.modalView dismissWithClickedButtonIndex:self.modalViewCancelIndex animated:NO];
+        } else if([self.modalView isKindOfClass:[UIActionSheet class]]) {
+            [(UIActionSheet *)self.modalView dismissWithClickedButtonIndex:self.modalViewCancelIndex animated:NO];
+        }
+        self.modalView = nil;
+    }
+    
+}
+
+- (void)applicationDidBecomeActive
+{
+    if (!self.photoData.count && !self.initial) {
+        [self showPicker:nil];
+    }
+}
+
 
 - (void)viewDidAppear:(BOOL)animated
 {
-    AppDelegate *appDelegate = [UIApplication sharedApplication].delegate;
-    [super viewDidAppear:animated && !appDelegate.showSelectView];
+    [super viewDidAppear:animated];
     [self updateButtons];
-    if (appDelegate.showSelectView) {
+    if (self.initial) {
+        self.initial = NO;
         [self showPicker:nil];
-        appDelegate.showSelectView = NO;
     }
 }
 
@@ -112,9 +171,8 @@ enum {
                                           cancelButtonTitle:nil
                                           otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
     alert.tag = AlertSaved;
-    AppDelegate *appDelegate = [UIApplication sharedApplication].delegate;
-    appDelegate.modalView = alert;
-    appDelegate.modalViewCancelIndex = 0;
+    self.modalView = alert;
+    self.modalViewCancelIndex = 0;
     [alert show];
 }
 
@@ -138,9 +196,8 @@ enum {
                                               cancelButtonTitle:nil
                                               otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
         alert.tag = AlertSaved;
-        AppDelegate *appDelegate = [UIApplication sharedApplication].delegate;
-        appDelegate.modalView = alert;
-        appDelegate.modalViewCancelIndex = 0;
+        self.modalView = alert;
+        self.modalViewCancelIndex = 0;
         [alert show];
         return;
     }
@@ -154,9 +211,8 @@ enum {
                                               cancelButtonTitle:nil
                                               otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
         alert.tag = AlertMailDisabled;
-        AppDelegate *appDelegate = [UIApplication sharedApplication].delegate;
-        appDelegate.modalView = alert;
-        appDelegate.modalViewCancelIndex = 0;
+        self.modalView = alert;
+        self.modalViewCancelIndex = 0;
         [alert show];
     }
     
@@ -307,9 +363,8 @@ enum {
                                               cancelButtonTitle:NSLocalizedString(@"Abort", nil)
                                               otherButtonTitles:NSLocalizedString(@"Clear", nil), nil];
         alert.tag = AlertClearAll;
-        AppDelegate *appDelegate = [UIApplication sharedApplication].delegate;
-        appDelegate.modalView = alert;
-        appDelegate.modalViewCancelIndex = 0;
+        self.modalView = alert;
+        self.modalViewCancelIndex = 0;
         [alert show];
     } else {
         self.photoData = nil;
@@ -329,16 +384,15 @@ enum {
     }
     [sheet addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
     sheet.cancelButtonIndex = sheet.numberOfButtons - 1;
-    AppDelegate *appDelegate = [UIApplication sharedApplication].delegate;
-    appDelegate.modalView = sheet;
-    appDelegate.modalViewCancelIndex = self.photoData.count;
+    self.modalView = sheet;
+    self.modalViewCancelIndex = self.photoData.count;
     [sheet showFromBarButtonItem:self.uniformSizesButton animated:YES];
 }
 
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    ((AppDelegate *)[UIApplication sharedApplication].delegate).modalView = nil;
+    self.modalView = nil;
     NSArray *sizes = [SizeManager sharedInstance].longSideLengths;
     if (buttonIndex < sizes.count) {
         NSInteger longSideLength = [sizes[buttonIndex] integerValue];
@@ -363,7 +417,7 @@ enum {
 - (void)alertView:(UIAlertView*)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
     BOOL showSelectView = NO;
-    ((AppDelegate *)[UIApplication sharedApplication].delegate).modalView = nil;
+    self.modalView = nil;
     switch(alertView.tag) {
         case AlertClearAll:
             switch (buttonIndex) {
@@ -374,6 +428,9 @@ enum {
                     showSelectView = YES;
                     break;
             }
+            break;
+        case AlertSaved:
+            showSelectView = YES;
             break;
         case AlertMailDisabled:
             [self updateButtons];
@@ -390,7 +447,7 @@ enum {
     elcPicker.returnsOriginalImage = YES;
     elcPicker.imagePickerDelegate = self;
     elcPicker.maximumImagesCount = MAXIMUM_IMAGES_COUNT;
-    [self presentViewController:elcPicker animated:YES completion:nil];
+    [self presentViewController:elcPicker animated:sender != nil completion:nil];
 }
 
 - (void)elcImagePickerController:(ELCImagePickerController *)picker didFinishPickingMediaWithInfo:(NSArray *)info
@@ -554,7 +611,7 @@ enum {
     CGImageRef imageRef = [photoData.image CGImage];
     CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
     CGColorSpaceRef colorSpaceInfo = CGImageGetColorSpace(imageRef);
-    
+    size_t bitsPerComponent = CGImageGetBitsPerComponent(imageRef);
 /*
         UIImageOrientationUp,            // default orientation
         UIImageOrientationDown,          // 180 deg rotation
@@ -575,7 +632,7 @@ enum {
  8	時計周りに270度回転
  */
     // TODO: 壊れたデータを読んだ場合の対策が必要
-    CGContextRef bitmap = CGBitmapContextCreate(NULL, size.width, size.height, CGImageGetBitsPerComponent(imageRef), CGImageGetBytesPerRow(imageRef), colorSpaceInfo, bitmapInfo);
+    CGContextRef bitmap = CGBitmapContextCreate(NULL, size.width, size.height, bitsPerComponent, 0, colorSpaceInfo, bitmapInfo);
     
     CGFloat w, h;
     switch (orientation) {

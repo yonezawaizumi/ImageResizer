@@ -24,15 +24,6 @@
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
-    if (self.modalView) {
-        if ([self.modalView isKindOfClass:[UIAlertView class]]) {
-            [(UIAlertView *)self.modalView dismissWithClickedButtonIndex:self.modalViewCancelIndex animated:NO];
-        } else if([self.modalView isKindOfClass:[UIActionSheet class]]) {
-            [(UIActionSheet *)self.modalView dismissWithClickedButtonIndex:self.modalViewCancelIndex animated:NO];
-        }
-        self.modalView = nil;
-    }
-    
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
@@ -43,7 +34,6 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-    self.showSelectView = YES;
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application

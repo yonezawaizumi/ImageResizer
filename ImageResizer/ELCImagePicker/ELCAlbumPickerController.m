@@ -28,7 +28,8 @@
 {
     [super viewDidLoad];
 	
-	[self.navigationItem setTitle:@"Loading..."];
+	//[self.navigationItem setTitle:@"Loading..."];
+	[self.navigationItem setTitle:@""];
 
     UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancel)];
 	[self.navigationItem setRightBarButtonItem:cancelButton];
