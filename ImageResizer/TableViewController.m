@@ -274,19 +274,17 @@ enum {
 
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
 {
-    BOOL showSelectView = NO;
     switch (result) {
         case MFMailComposeResultCancelled:
             break;
         default:
             [self clearAll:nil];
-            showSelectView = YES;
+            self.initial = YES;
             break;
     }
     [controller dismissViewControllerAnimated:YES completion:nil];
     self.tableView.userInteractionEnabled = YES;
     [self updateButtons];
-    [self showPicker:nil];
 }
 
 - (void)savePhotos:(SEL)selector toAssetsLibrary:(BOOL)toAssetsLibrary
