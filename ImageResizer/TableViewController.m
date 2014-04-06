@@ -23,7 +23,7 @@
 @interface TableViewController ()
 
 @property(nonatomic, strong) NSMutableArray *photoData;
-@property(strong, nonatomic) UIView *modalView;
+@property(strong, nonatomic) id modalView;
 @property(assign, nonatomic) NSInteger modalViewCancelIndex;
 @property(nonatomic, assign) BOOL dirty;
 @property(nonatomic, assign) BOOL initial;
@@ -103,6 +103,8 @@ enum {
             [(UIAlertView *)self.modalView dismissWithClickedButtonIndex:self.modalViewCancelIndex animated:NO];
         } else if([self.modalView isKindOfClass:[UIActionSheet class]]) {
             [(UIActionSheet *)self.modalView dismissWithClickedButtonIndex:self.modalViewCancelIndex animated:NO];
+        } else if([self.modalView isKindOfClass:[ELCImagePickerController class]]) {
+            [(ELCImagePickerController *)self.modalView dismissViewControllerAnimated:NO completion:nil];
         }
         self.modalView = nil;
     }
@@ -445,6 +447,7 @@ enum {
     elcPicker.returnsOriginalImage = YES;
     elcPicker.imagePickerDelegate = self;
     elcPicker.maximumImagesCount = MAXIMUM_IMAGES_COUNT;
+    self.modalView = elcPicker;
     [self presentViewController:elcPicker animated:sender != nil completion:nil];
 }
 
@@ -474,6 +477,7 @@ enum {
     
     [self updatePhotoData:photos];
 
+    self.modalView = nil;
     [picker dismissViewControllerAnimated:YES completion:nil];
 }
 
