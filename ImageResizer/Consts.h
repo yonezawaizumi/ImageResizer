@@ -10,7 +10,7 @@
 #define ImageResizer_Consts_h
 
 #define MAXIMUM_IMAGES_COUNT                12
-#define RESIZED_LONG_SIDE_LENGTHS           { 320, 600, 640, 800, 1024, 1200 }
+#define RESIZED_LONG_SIDE_LENGTHS           { 320, 640, 800, 1024, 1200 }
 #define DEFAULT_RESIZED_LONG_SIDE_LENGTH    800
 
 #define USER_DEFAULTS_KEY_DEFAULT_RESIZED_LONG_SIZE_LENGTH  @"LongSideLength"

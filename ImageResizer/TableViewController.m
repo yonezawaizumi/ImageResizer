@@ -9,6 +9,7 @@
 #import <ImageIO/ImageIO.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <MessageUI/MFMailComposeViewController.h>
+#import <Social/Social.h>
 #import "AppDelegate.h"
 #import "TableViewController.h"
 #import "SelectSizeViewController.h"
@@ -34,6 +35,12 @@ enum {
     AlertClearAll = 1,
     AlertSaved = 2,
     AlertMailDisabled = 3,
+};
+
+enum {
+    Nothing = 0,
+    JpegData = 1,
+    UIImageData = 2,
 };
 
 @implementation TableViewController
@@ -148,7 +155,7 @@ enum {
 
 - (void)save:(id)sender
 {
-    [self savePhotos:@selector(onSavedPhotosWithURLs:) toAssetsLibrary:YES];
+    [self savePhotos:@selector(onSavedPhotosWithURLs:) mode:Nothing inAlbum:TRUE];
 }
 
 - (void)onSavedPhotosWithURLs:(NSArray *)URLs
@@ -183,7 +190,10 @@ enum {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSNumber *leaveMailPhotos = [userDefaults objectForKey:USER_DEFAULTS_KEY_LEAVE_MAIL_PHOTOS];
     
-    [self savePhotos:@selector(onSavedPhotosForSendMailWithURLs:) toAssetsLibrary:leaveMailPhotos && [leaveMailPhotos boolValue]];
+    [self savePhotos:@selector(onSavedPhotosForSendMailWithURLs:)
+                mode:JpegData
+             inAlbum:leaveMailPhotos && [leaveMailPhotos boolValue]
+     ];
 }
 
 - (void)onSavedPhotosForSendMailWithURLs:(NSArray *)URLs
@@ -216,6 +226,7 @@ enum {
         self.modalView = alert;
         self.modalViewCancelIndex = 0;
         [alert show];
+        return;
     }
     
     MFMailComposeViewController *mailViewController = [[MFMailComposeViewController alloc] init];
@@ -289,7 +300,111 @@ enum {
     [self updateButtons];
 }
 
-- (void)savePhotos:(SEL)selector toAssetsLibrary:(BOOL)toAssetsLibrary
+- (void)tw:(id)sender
+{
+    if (self.photoData.count > 1) {
+        self.tableView.userInteractionEnabled = YES;
+        [self updateButtons];
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Only 1 Attached Photo", nil)
+                                                        message:nil
+                                                       delegate:self
+                                              cancelButtonTitle:nil
+                                              otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
+        alert.tag = AlertMailDisabled;
+        self.modalView = alert;
+        self.modalViewCancelIndex = 0;
+        [alert show];
+        return;
+    }
+    
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSNumber *leaveMailPhotos = [userDefaults objectForKey:USER_DEFAULTS_KEY_LEAVE_MAIL_PHOTOS];
+    
+    [self savePhotos:@selector(onSavedPhotosForTwWithURLs:)
+                mode:UIImageData
+             inAlbum:leaveMailPhotos && [leaveMailPhotos boolValue]
+     ];
+}
+
+- (void)onSavedPhotosForTwWithURLs:(NSArray *)URLs
+{
+    int failed = [self failedCountFronURLs:URLs];
+    if (failed) {
+        self.tableView.userInteractionEnabled = YES;
+        [self updateButtons];
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Failed", nil)
+                                                        message:[NSString stringWithFormat:NSLocalizedString(@"Failed %d Resizing", nil), failed]
+                                                       delegate:self
+                                              cancelButtonTitle:nil
+                                              otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
+        alert.tag = AlertSaved;
+        self.modalView = alert;
+        self.modalViewCancelIndex = 0;
+        [alert show];
+        return;
+    }
+    
+    if (![SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter]) {
+        self.tableView.userInteractionEnabled = YES;
+        [self updateButtons];
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Cannot Tweet", nil)
+                                                        message:nil
+                                                       delegate:self
+                                              cancelButtonTitle:nil
+                                              otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
+        alert.tag = AlertMailDisabled;
+        self.modalView = alert;
+        self.modalViewCancelIndex = 0;
+        [alert show];
+        return;
+    }
+    
+    SLComposeViewController *viewController = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
+    
+    [viewController setCompletionHandler:^(SLComposeViewControllerResult result) {
+        switch (result) {
+            case SLComposeViewControllerResultDone:
+                break;
+            case SLComposeViewControllerResultCancelled:
+                break;
+        }
+    }];
+    
+    
+   if (![viewController addImage:(UIImage *)URLs[0]]) {
+        self.tableView.userInteractionEnabled = YES;
+        [self updateButtons];
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Cannot Attach Photo", nil)
+                                                        message:nil
+                                                       delegate:self
+                                              cancelButtonTitle:nil
+                                              otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
+        alert.tag = AlertMailDisabled;
+        self.modalView = alert;
+        self.modalViewCancelIndex = 0;
+        [alert show];
+    }
+    
+    [viewController setCompletionHandler:^(SLComposeViewControllerResult result) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+        switch (result) {
+            case SLComposeViewControllerResultCancelled:
+                self.tableView.userInteractionEnabled = YES;
+                [self updateButtons];
+                break;
+            default:
+                [self clearAll:nil];
+                self.initial = YES;
+                self.tableView.userInteractionEnabled = YES;
+                [self updateButtons];
+                [self showPicker:nil];
+                break;
+        }
+    }];
+    [self presentViewController:viewController animated:YES completion:nil];
+}
+
+- (void)savePhotos:(SEL)selector mode:(int)mode inAlbum:(BOOL)inAlbum
 {
     self.tableView.userInteractionEnabled = NO;
     [self updateButtons];
@@ -299,7 +414,7 @@ enum {
     for (PhotoData *photoData in self.photoData) {
         [sizes addObject:[NSValue valueWithCGSize:[sizeManager resizedSizeWithLongSideLength:photoData.longSideLength originalSize:photoData.originalSize]]];
     }
-    ALAssetsLibrary *assetsLibrary = toAssetsLibrary ? [[ALAssetsLibrary alloc] init] : nil;
+    ALAssetsLibrary *assetsLibrary = mode == inAlbum ? [[ALAssetsLibrary alloc] init] : nil;
     //NSString *fileNameBase = [NSString stringWithFormat:@"%lx_", (long)[NSDate date].timeIntervalSince1970];
 
     const int count = (int)self.photoData.count;
@@ -311,7 +426,7 @@ enum {
             CGSize size = [sizes[index] CGSizeValue];
             CGImageRef imageRef = [self prepareResizedImage:photoData size:size];
             NSDictionary *metadata = [self prepareResizedMetadata:photoData size:size];
-            if (toAssetsLibrary) {
+            if (inAlbum) {
                 dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
                 [assetsLibrary writeImageToSavedPhotosAlbum:imageRef
                                                    metadata:metadata
@@ -322,7 +437,7 @@ enum {
                                                 if(error) {
                                                     NSLog(@"error:%@", error);
                                                     [URLs addObject:[NSNull null]];
-                                                } else {
+                                                } else if (mode == JpegData) {
                                                     [URLs addObject:assetURL];
                                                 }
                                                 dispatch_semaphore_signal(finishedSemaphore);
@@ -330,13 +445,21 @@ enum {
                                                 dispatch_semaphore_signal(semaphore);
                                             }];
                 dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-            } else {
-                NSMutableData *data = [[NSMutableData alloc] init];
-                CGImageDestinationRef dest = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)data, kUTTypeJPEG, 1, NULL);
-                CGImageDestinationAddImage(dest, imageRef, (__bridge CFDictionaryRef)metadata);
-                CGImageDestinationFinalize(dest);
-                CFRelease(dest);
-                [URLs addObject:data];
+            }
+            switch (mode) {
+                case JpegData:
+                    if (!inAlbum) {
+                        NSMutableData *data = [[NSMutableData alloc] init];
+                        CGImageDestinationRef dest = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)data, kUTTypeJPEG, 1, NULL);
+                        CGImageDestinationAddImage(dest, imageRef, (__bridge CFDictionaryRef)metadata);
+                        CGImageDestinationFinalize(dest);
+                        CFRelease(dest);
+                        [URLs addObject:data];
+                    }
+                    break;
+                case UIImageData:
+                    [URLs addObject:[UIImage imageWithCGImage:imageRef]];
+                    break;
             }
         }
         [self performSelectorOnMainThread:selector withObject:URLs waitUntilDone:NO];
@@ -533,6 +656,7 @@ enum {
     self.clearAllButton.enabled = enabled;
     self.uniformSizesButton.enabled = enabled;
     self.sendMailButton.enabled = enabled && [MFMailComposeViewController canSendMail];
+    self.twButton.enabled = self.photoData.count == 1 && [SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter];
     self.saveButton.enabled = enabled;
 }
 

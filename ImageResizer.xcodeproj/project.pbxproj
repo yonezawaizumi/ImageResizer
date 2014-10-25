@@ -40,6 +40,7 @@
 		06CD682A1876602900ACA6A9 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 06CD682C1876602900ACA6A9 /* Localizable.strings */; };
 		06CF9A3718949E2A00F17A59 /* settings@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 06CF9A3518949E2A00F17A59 /* settings@2x.png */; };
 		06CF9A3818949E2A00F17A59 /* settings.png in Resources */ = {isa = PBXBuildFile; fileRef = 06CF9A3618949E2A00F17A59 /* settings.png */; };
+		06D5FAF019F7EF4500F6C4B0 /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06D5FAEF19F7EF4500F6C4B0 /* Social.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -109,6 +110,7 @@
 		06CD682E187660B200ACA6A9 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		06CF9A3518949E2A00F17A59 /* settings@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "settings@2x.png"; sourceTree = "<group>"; };
 		06CF9A3618949E2A00F17A59 /* settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = settings.png; sourceTree = "<group>"; };
+		06D5FAEF19F7EF4500F6C4B0 /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,6 +118,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				06D5FAF019F7EF4500F6C4B0 /* Social.framework in Frameworks */,
 				066F2EAE1880FF0E0031A08B /* MessageUI.framework in Frameworks */,
 				065CF3D418740BBF008C3DFC /* AssetsLibrary.framework in Frameworks */,
 				065CF36718740546008C3DFC /* CoreGraphics.framework in Frameworks */,
@@ -160,6 +163,7 @@
 		065CF36318740545008C3DFC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				06D5FAEF19F7EF4500F6C4B0 /* Social.framework */,
 				066F2EAD1880FF0E0031A08B /* MessageUI.framework */,
 				06CD68231875B0B200ACA6A9 /* MapKit.framework */,
 				065CF3D318740BBF008C3DFC /* AssetsLibrary.framework */,
@@ -530,6 +534,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ImageResizer/ImageResizer-Prefix.pch";
 				INFOPLIST_FILE = "ImageResizer/ImageResizer-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -546,6 +551,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ImageResizer/ImageResizer-Prefix.pch";
 				INFOPLIST_FILE = "ImageResizer/ImageResizer-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;

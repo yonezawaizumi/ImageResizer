@@ -30,3 +30,6 @@
 "Attached Photos In Mail" = "メールに添付した写真";
 "Leave In Album" = "カメラロールに保存";
 "Remove From Album" = "保存しない";
+"Cannot Tweet" = "ツイートできません";
+"Cannot Attach Photo" = "写真を添付できません";
+"Only 1 Attached Photo" = "写真は1枚しか添付できません";
