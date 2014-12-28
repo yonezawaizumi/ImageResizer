@@ -394,7 +394,7 @@ enum {
                 break;
             default:
                 [self clearAll:nil];
-                self.initial = YES;
+                //self.initial = YES;
                 self.tableView.userInteractionEnabled = YES;
                 [self updateButtons];
                 [self showPicker:nil];
@@ -414,7 +414,7 @@ enum {
     for (PhotoData *photoData in self.photoData) {
         [sizes addObject:[NSValue valueWithCGSize:[sizeManager resizedSizeWithLongSideLength:photoData.longSideLength originalSize:photoData.originalSize]]];
     }
-    ALAssetsLibrary *assetsLibrary = mode == inAlbum ? [[ALAssetsLibrary alloc] init] : nil;
+    ALAssetsLibrary *assetsLibrary = inAlbum ? [[ALAssetsLibrary alloc] init] : nil;
     //NSString *fileNameBase = [NSString stringWithFormat:@"%lx_", (long)[NSDate date].timeIntervalSince1970];
 
     const int count = (int)self.photoData.count;
@@ -426,26 +426,6 @@ enum {
             CGSize size = [sizes[index] CGSizeValue];
             CGImageRef imageRef = [self prepareResizedImage:photoData size:size];
             NSDictionary *metadata = [self prepareResizedMetadata:photoData size:size];
-            if (inAlbum) {
-                dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-                [assetsLibrary writeImageToSavedPhotosAlbum:imageRef
-                                                   metadata:metadata
-                                            completionBlock:^(NSURL *assetURL, NSError *error) {
-                                                //NSLog(@"inde:%d", index);
-                                                //NSLog(@"URL:%@", assetURL);
-                                                dispatch_semaphore_wait(finishedSemaphore, DISPATCH_TIME_FOREVER);
-                                                if(error) {
-                                                    NSLog(@"error:%@", error);
-                                                    [URLs addObject:[NSNull null]];
-                                                } else if (mode == JpegData) {
-                                                    [URLs addObject:assetURL];
-                                                }
-                                                dispatch_semaphore_signal(finishedSemaphore);
-                                                CFRelease(imageRef);
-                                                dispatch_semaphore_signal(semaphore);
-                                            }];
-                dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-            }
             switch (mode) {
                 case JpegData:
                     if (!inAlbum) {
@@ -460,6 +440,28 @@ enum {
                 case UIImageData:
                     [URLs addObject:[UIImage imageWithCGImage:imageRef]];
                     break;
+            }
+            if (inAlbum) {
+                dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+                [assetsLibrary writeImageToSavedPhotosAlbum:imageRef
+                                                   metadata:metadata
+                                            completionBlock:^(NSURL *assetURL, NSError *error) {
+                                                //NSLog(@"inde:%d", index);
+                                                //NSLog(@"URL:%@", assetURL);
+                                                dispatch_semaphore_wait(finishedSemaphore, DISPATCH_TIME_FOREVER);
+                                                if(error) {
+                                                    NSLog(@"error:%@", error);
+                                                    [URLs addObject:[NSNull null]];
+                                                } else if (mode != UIImageData) {
+                                                    [URLs addObject:assetURL];
+                                                }
+                                                dispatch_semaphore_signal(finishedSemaphore);
+                                                CFRelease(imageRef);
+                                                dispatch_semaphore_signal(semaphore);
+                                            }];
+                dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+            } else {
+                CFRelease(imageRef);
             }
         }
         [self performSelectorOnMainThread:selector withObject:URLs waitUntilDone:NO];
