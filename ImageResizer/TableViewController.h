@@ -8,12 +8,11 @@
 
 #import <UIKit/UIKit.h>
 #import <MessageUI/MessageUI.h>
-#import "ELCImagePickerController.h"
-#import "ELCAlbumPickerController.h"
+#import "QBImagePicker/QBImagePicker.h"
 #import "SelectSizeViewController.h"
 
 
-@interface TableViewController : UITableViewController<UITableViewDataSource, UITableViewDelegate, ELCImagePickerControllerDelegate, SelectSizeViewControllerDelegate, UIAlertViewDelegate, UIActionSheetDelegate, MFMailComposeViewControllerDelegate>
+@interface TableViewController : UITableViewController<UITableViewDataSource, UITableViewDelegate, QBImagePickerControllerDelegate, SelectSizeViewControllerDelegate, UIAlertViewDelegate, UIActionSheetDelegate, MFMailComposeViewControllerDelegate>
 
 @property(nonatomic, strong) IBOutlet UIBarButtonItem *organizeButton;
 @property(nonatomic, strong) IBOutlet UIBarButtonItem *clearAllButton;

@@ -9,6 +9,7 @@
 #import <ImageIO/ImageIO.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <MessageUI/MFMailComposeViewController.h>
+#import <Photos/Photos.h>
 #import <Social/Social.h>
 #import "AppDelegate.h"
 #import "TableViewController.h"
@@ -84,7 +85,7 @@ enum {
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
+    
     self.photoData = nil;
     self.dirty = NO;
     // Uncomment the following line to preserve selection between presentations.
@@ -110,8 +111,8 @@ enum {
             [(UIAlertView *)self.modalView dismissWithClickedButtonIndex:self.modalViewCancelIndex animated:NO];
         } else if([self.modalView isKindOfClass:[UIActionSheet class]]) {
             [(UIActionSheet *)self.modalView dismissWithClickedButtonIndex:self.modalViewCancelIndex animated:NO];
-        } else if([self.modalView isKindOfClass:[ELCImagePickerController class]]) {
-            [(ELCImagePickerController *)self.modalView dismissViewControllerAnimated:NO completion:nil];
+        } else if([self.modalView isKindOfClass:[QBImagePickerController class]]) {
+            [(QBImagePickerController *)self.modalView dismissViewControllerAnimated:NO completion:nil];
         }
         self.modalView = nil;
     }
@@ -198,7 +199,7 @@ enum {
 
 - (void)onSavedPhotosForSendMailWithURLs:(NSArray *)URLs
 {
-    int failed = [self failedCountFronURLs:URLs];
+    /*int failed = [self failedCountFronURLs:URLs];
     if (failed) {
         self.tableView.userInteractionEnabled = YES;
         [self updateButtons];
@@ -282,7 +283,7 @@ enum {
     });
     dispatch_async(dispatch_get_main_queue(), ^{
         [self presentViewController:mailViewController animated:YES completion:nil];
-    });
+    });*/
 }
 
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
@@ -414,7 +415,7 @@ enum {
     for (PhotoData *photoData in self.photoData) {
         [sizes addObject:[NSValue valueWithCGSize:[sizeManager resizedSizeWithLongSideLength:photoData.longSideLength originalSize:photoData.originalSize]]];
     }
-    ALAssetsLibrary *assetsLibrary = inAlbum ? [[ALAssetsLibrary alloc] init] : nil;
+    //ALAssetsLibrary *assetsLibrary = inAlbum ? [[ALAssetsLibrary alloc] init] : nil;
     //NSString *fileNameBase = [NSString stringWithFormat:@"%lx_", (long)[NSDate date].timeIntervalSince1970];
 
     const int count = (int)self.photoData.count;
@@ -425,25 +426,18 @@ enum {
             PhotoData *photoData = self.photoData[index];
             CGSize size = [sizes[index] CGSizeValue];
             CGImageRef imageRef = [self prepareResizedImage:photoData size:size];
+
             NSDictionary *metadata = [self prepareResizedMetadata:photoData size:size];
-            switch (mode) {
-                case JpegData:
-                    if (!inAlbum) {
-                        NSMutableData *data = [[NSMutableData alloc] init];
-                        CGImageDestinationRef dest = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)data, kUTTypeJPEG, 1, NULL);
-                        CGImageDestinationAddImage(dest, imageRef, (__bridge CFDictionaryRef)metadata);
-                        CGImageDestinationFinalize(dest);
-                        CFRelease(dest);
-                        [URLs addObject:data];
-                    }
-                    break;
-                case UIImageData:
-                    [URLs addObject:[UIImage imageWithCGImage:imageRef]];
-                    break;
-            }
+            NSMutableData *data = [[NSMutableData alloc] init];
+            CGImageDestinationRef dest = CGImageDestinationCreateWithData((__bridge CFMutableDataRef)data, kUTTypeJPEG, 1, NULL);
+            CGImageDestinationAddImage(dest, imageRef, (__bridge CFDictionaryRef)metadata);
+            CGImageDestinationFinalize(dest);
+            CFRelease(dest);
+            [URLs addObject:data];
+
             if (inAlbum) {
                 dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-                [assetsLibrary writeImageToSavedPhotosAlbum:imageRef
+                /*[assetsLibrary writeImageToSavedPhotosAlbum:imageRef
                                                    metadata:metadata
                                             completionBlock:^(NSURL *assetURL, NSError *error) {
                                                 //NSLog(@"inde:%d", index);
@@ -458,7 +452,47 @@ enum {
                                                 dispatch_semaphore_signal(finishedSemaphore);
                                                 CFRelease(imageRef);
                                                 dispatch_semaphore_signal(semaphore);
-                                            }];
+                                            }];*/
+                [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+                    // Create PHAsset from UIImage
+                    PHAssetChangeRequest *assetChangeRequest = [PHAssetChangeRequest creationRequestForAssetFromImage:];
+                    
+                    PHObjectPlaceholder *assetPlaceholder = assetChangeRequest.placeholderForCreatedAsset;
+                    localIdentifier = assetPlaceholder.localIdentifier;
+                    
+                    // Add PHAsset to PHAssetCollection
+                    PHAssetCollectionChangeRequest *assetCollectionChangeRequest = [PHAssetCollectionChangeRequest changeRequestForAssetCollection:self.assetCollection];
+                    [assetCollectionChangeRequest addAssets:@[assetPlaceholder]];
+                    
+                } completionHandler:^(BOOL success, NSError *error) {
+                    if (!success) {
+                        NSLog(@"creating Asset Error: %@", error);
+                    } else {
+                        NSLog(@"creating Asset Success");
+                        PHFetchResult *assets = [PHAsset fetchAssetsWithLocalIdentifiers:@[localIdentifier] options:nil];
+                        PHAsset *asset = assets[0];
+                        
+                        NSNumber *latitude = assetInfo[@"latitude"];
+                        NSNumber *longitude = assetInfo[@"longitude"];
+                        
+                        if (latitude && longitude) {
+                            // add location data
+                            CLLocation *location = [[CLLocation alloc]initWithLatitude:latitude.doubleValue longitude:longitude.doubleValue];
+                            if ([asset canPerformEditOperation:PHAssetEditOperationProperties]) {
+                                [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+                                    PHAssetChangeRequest *request = [PHAssetChangeRequest changeRequestForAsset:asset];
+                                    [request setLocation:location];
+                                } completionHandler:^(BOOL success, NSError *error) {
+                                    if (success) {
+                                        NSLog(@"%s add location data success", __PRETTY_FUNCTION__);
+                                    }
+                                }];
+                            }
+                        } else {
+                            NSLog(@"latitude or longitude value is nil");
+                        }
+                    }
+                }];
                 dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
             } else {
                 CFRelease(imageRef);
@@ -568,47 +602,89 @@ enum {
 
 - (void)showPicker:(id)sender
 {
-	ELCImagePickerController *elcPicker = [[ELCImagePickerController alloc] initImagePicker];
-    elcPicker.returnsOriginalImage = YES;
-    elcPicker.imagePickerDelegate = self;
-    elcPicker.maximumImagesCount = MAXIMUM_IMAGES_COUNT;
-    self.modalView = elcPicker;
-    [self presentViewController:elcPicker animated:sender != nil completion:nil];
+	QBImagePickerController *imagePickerController = [QBImagePickerController new];
+    imagePickerController.delegate = self;
+    imagePickerController.mediaType = QBImagePickerMediaTypeImage;
+    imagePickerController.allowsMultipleSelection = YES;
+    imagePickerController.showsNumberOfSelectedAssets = YES;
+    imagePickerController.showFirstAlbumDirectly = YES;
+    imagePickerController.maximumNumberOfSelection = MAXIMUM_IMAGES_COUNT;
+    self.modalView = imagePickerController;
+    [self presentViewController:imagePickerController animated:sender != nil completion:nil];
 }
 
-- (void)elcImagePickerController:(ELCImagePickerController *)picker didFinishPickingMediaWithInfo:(NSArray *)info
+- (void)qb_imagePickerController:(QBImagePickerController *)imagePickerController didFinishPickingAssets:(NSArray *)assets;
 {
-    NSMutableArray *photos = [NSMutableArray arrayWithCapacity:info.count];
+    NSMutableArray *photos = [NSMutableArray arrayWithCapacity:assets.count];
 
     SizeManager *sizeManager = [SizeManager sharedInstance];
     NSInteger defaultLongSideLength = sizeManager.defaultLongSideLength;
     
-    for (NSDictionary *dict in info) {
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:NSLocalizedString(@"yyyy-MM-dd HH:mm:ss", nil)];
+
+    PHImageManager *imageManager = [PHCachingImageManager new];
+    
+    for (int index = 0; index < assets.count; ++index) {
+        PHAsset *asset = assets[index];
         PhotoData *photoData = [[PhotoData alloc] init];
-        photoData.thumbnail = dict[@"thumbnail"];
-        photoData.image = dict[UIImagePickerControllerOriginalImage];
-        photoData.originalSize = [photoData.image size];
+        photoData.thumbnail = nil;
+        photoData.image = nil;
+        photoData.originalSize = CGSizeMake(asset.pixelWidth, asset.pixelHeight);
         photoData.longSideLength = defaultLongSideLength;
-        NSDictionary *metadata = dict[@"metadata"];
+        photoData.location = asset.location;
+        NSDate *date = asset.creationDate;
+        photoData.dateString = date ? [formatter stringFromDate:date] : NSLocalizedString(@"unknown datetime", nil);
+        NSArray *indexPaths = [NSArray arrayWithObject:[NSIndexPath indexPathForRow:index inSection:0]];
+        [imageManager requestImageForAsset:asset
+                                targetSize:CGSizeMake(44, 44)
+                               contentMode:PHImageContentModeDefault
+                                   options:nil
+                             resultHandler:^(UIImage *result, NSDictionary *info) {
+                                 photoData.thumbnail = result;
+                                 dispatch_async(dispatch_get_main_queue(), ^{
+                                     [self.tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+                                 });
+                             }
+         ];
+        [imageManager requestImageDataForAsset:asset
+                                       options:nil
+                                 resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary * info) {
+                                     CGImageSourceRef imageSource = CGImageSourceCreateWithData((CFDataRef)imageData, nil);
+                                     NSDictionary *metadata = (__bridge NSDictionary *)CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil);
+                                     if (metadata) {
+                                         NSString *dateString = photoData.metadata[(NSString *)kCGImagePropertyExifDictionary][@"DateTimeOriginal"];
+                                         if (dateString) {
+                                             photoData.metadata = [NSMutableDictionary dictionaryWithDictionary:metadata];
+                                             photoData.dateString = [NSString stringWithFormat:NSLocalizedString(@"%@", nil), dateString];
+                                             dispatch_async(dispatch_get_main_queue(), ^{
+                                                 [self.tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+                                             });
+                                         }
+                                     }
+                                     CFRelease(imageSource);
+                                     photoData.image = [UIImage imageWithData:imageData];
+                                 }
+         ];
+        /*NSDictionary *metadata = dict[@"metadata"];
         photoData.metadata = [NSMutableDictionary dictionaryWithDictionary:metadata];
-        photoData.location = dict[ALAssetPropertyLocation];
         NSString *dateString = photoData.metadata[(NSString *)kCGImagePropertyExifDictionary][@"DateTimeOriginal"];
         photoData.dateString = dateString
             ? [NSString stringWithFormat:NSLocalizedString(@"%@", nil), dateString]
             : NSLocalizedString(@"unknown datetime", nil);
-
+        */
         [photos addObject:photoData];
     }
     
     [self updatePhotoData:photos];
 
     self.modalView = nil;
-    [picker dismissViewControllerAnimated:YES completion:nil];
+    [imagePickerController dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (void)elcImagePickerControllerDidCancel:(ELCImagePickerController *)picker
+- (void)qb_imagePickerControllerDidCancel:(QBImagePickerController *)imagePickerController
 {
-    [picker dismissViewControllerAnimated:YES completion:nil];
+    [imagePickerController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -694,7 +770,7 @@ enum {
     
     //NSLog(@"%@", photoData.metadata);
     cell.detailTextLabel.text = photoData.dateString;
-    cell.imageView.image = photoData.thumbnail;
+    cell.imageView.image = photoData.thumbnail ? photoData.thumbnail : [UIImage imageNamed:@"statusicon_notload"];
     
     //NSLog(@"%@", photoData.location);
     
