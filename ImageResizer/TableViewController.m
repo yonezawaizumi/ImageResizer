@@ -38,12 +38,6 @@ enum {
     AlertMailDisabled = 3,
 };
 
-enum {
-    Nothing = 0,
-    JpegData = 1,
-    UIImageData = 2,
-};
-
 @implementation TableViewController
 
 - (id)init
@@ -156,15 +150,15 @@ enum {
 
 - (void)save:(id)sender
 {
-    [self savePhotos:@selector(onSavedPhotosWithURLs:) mode:Nothing inAlbum:TRUE];
+    [self savePhotos:@selector(onSavedPhotos) inAlbum:TRUE];
 }
 
-- (void)onSavedPhotosWithURLs:(NSArray *)URLs
+- (void)onSavedPhotos
 {
     self.tableView.userInteractionEnabled = YES;
     [self updateButtons];
-    int failed = [self failedCountFronURLs:URLs];
-    int succeeded = (int)URLs.count - failed;
+    int failed = [self failedCount];
+    int succeeded = (int)self.photoData.count - failed;
     NSString *title;
     NSString *message;
     if (failed) {
@@ -191,15 +185,12 @@ enum {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSNumber *leaveMailPhotos = [userDefaults objectForKey:USER_DEFAULTS_KEY_LEAVE_MAIL_PHOTOS];
     
-    [self savePhotos:@selector(onSavedPhotosForSendMailWithURLs:)
-                mode:JpegData
-             inAlbum:leaveMailPhotos && [leaveMailPhotos boolValue]
-     ];
+    [self savePhotos:@selector(onSavedPhotosForSendMail) inAlbum:leaveMailPhotos && [leaveMailPhotos boolValue]];
 }
 
-- (void)onSavedPhotosForSendMailWithURLs:(NSArray *)URLs
+- (void)onSavedPhotosForSendMail
 {
-    /*int failed = [self failedCountFronURLs:URLs];
+    int failed = [self failedCount];
     if (failed) {
         self.tableView.userInteractionEnabled = YES;
         [self updateButtons];
@@ -235,55 +226,15 @@ enum {
     
     [mailViewController setMessageBody:@"" isHTML:NO];
     
-    ALAssetsLibrary *assetsLibrary = [[ALAssetsLibrary alloc] init];
-    failed = 0;
-    const int count = (int)URLs.count;
-    const BOOL leaveMailPhots = count && [URLs[0] isKindOfClass:[NSData class]];
-    dispatch_semaphore_t finishedSemaphore = dispatch_semaphore_create(1);
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        for (int index = 0; index < count; ++index) {
-            if (leaveMailPhots) {
-                [mailViewController addAttachmentData:URLs[index]
-                                             mimeType:@"image/jpeg"
-                                             fileName:[NSString stringWithFormat:@"Image%d.jpg", index]];
-            } else {
-                dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-                [assetsLibrary assetForURL:URLs[index]
-                               resultBlock:^(ALAsset *asset) {
-                                   ALAssetRepresentation *representation = [asset defaultRepresentation];
-                                   NSUInteger size = (NSUInteger)[representation size];
-                                   void *buff = malloc(size);
-                                   if (buff) {
-                                       NSError *error = nil;
-                                       NSUInteger bytesRead = [representation getBytes:buff fromOffset:0 length:size error:&error];
-                                       dispatch_semaphore_wait(finishedSemaphore, DISPATCH_TIME_FOREVER);
-                                       if (bytesRead && !error) {
-                                           NSData *photo = [NSData dataWithBytesNoCopy:buff length:bytesRead freeWhenDone:YES];
-                                           [mailViewController addAttachmentData:photo
-                                                                        mimeType:@"image/jpeg"
-                                                                        fileName:[NSString stringWithFormat:@"Image%d.jpg", index]];
-                                       } else {
-                                           free(buff);
-                                       }
-                                       if (error) {
-                                           NSLog(@"error:%@", error);
-                                       }
-                                       dispatch_semaphore_signal(finishedSemaphore);
-                                       dispatch_semaphore_signal(semaphore);
-                                   }
-                               }
-                              failureBlock:^(NSError *error){
-                                  NSLog(@"error:%@", error);
-                                  dispatch_semaphore_signal(semaphore);
-                              }
-                ];
-                dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-            }
-        }
-    });
+    int index = 0;
+    for (PhotoData *photoData in self.photoData) {
+        [mailViewController addAttachmentData:photoData.resizedImageData
+                                     mimeType:@"image/jpeg"
+                                     fileName:[NSString stringWithFormat:@"Image%d.jpg", ++index]];
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
         [self presentViewController:mailViewController animated:YES completion:nil];
-    });*/
+    });
 }
 
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
@@ -321,15 +272,12 @@ enum {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSNumber *leaveMailPhotos = [userDefaults objectForKey:USER_DEFAULTS_KEY_LEAVE_MAIL_PHOTOS];
     
-    [self savePhotos:@selector(onSavedPhotosForTwWithURLs:)
-                mode:UIImageData
-             inAlbum:leaveMailPhotos && [leaveMailPhotos boolValue]
-     ];
+    [self savePhotos:@selector(onSavedPhotosForTw) inAlbum:leaveMailPhotos && [leaveMailPhotos boolValue]];
 }
 
-- (void)onSavedPhotosForTwWithURLs:(NSArray *)URLs
+- (void)onSavedPhotosForTw
 {
-    int failed = [self failedCountFronURLs:URLs];
+    int failed = [self failedCount];
     if (failed) {
         self.tableView.userInteractionEnabled = YES;
         [self updateButtons];
@@ -370,9 +318,9 @@ enum {
                 break;
         }
     }];
+
     
-    
-   if (![viewController addImage:(UIImage *)URLs[0]]) {
+    if (![viewController addImage:[UIImage imageWithData:((PhotoData *)self.photoData[0]).resizedImageData]]) {
         self.tableView.userInteractionEnabled = YES;
         [self updateButtons];
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Cannot Attach Photo", nil)
@@ -405,22 +353,35 @@ enum {
     [self presentViewController:viewController animated:YES completion:nil];
 }
 
-- (void)savePhotos:(SEL)selector mode:(int)mode inAlbum:(BOOL)inAlbum
+- (void)savePhotos:(SEL)selector inAlbum:(BOOL)inAlbum
 {
     self.tableView.userInteractionEnabled = NO;
     [self updateButtons];
+    
+    NSString *tempPath;
+    NSURL *tempUrl;
+    PHAssetCollection *album;
+    if (inAlbum) {
+        PHFetchResult<PHAssetCollection *> *result = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary options:nil];
+        if (!result) {
+            return;
+        }
+        album = result.firstObject;
+        tempPath = [NSString stringWithFormat:@"%@ImageResizer_%ld.jpg", NSTemporaryDirectory(), (long)[NSDate date].timeIntervalSince1970];
+        tempUrl = [NSURL fileURLWithPath:tempPath];
+    } else {
+        tempPath = nil;
+        tempUrl = nil;
+        album = nil;
+    }
     
     SizeManager *sizeManager = [SizeManager sharedInstance];
     NSMutableArray *sizes = [NSMutableArray arrayWithCapacity:self.photoData.count];
     for (PhotoData *photoData in self.photoData) {
         [sizes addObject:[NSValue valueWithCGSize:[sizeManager resizedSizeWithLongSideLength:photoData.longSideLength originalSize:photoData.originalSize]]];
     }
-    //ALAssetsLibrary *assetsLibrary = inAlbum ? [[ALAssetsLibrary alloc] init] : nil;
-    //NSString *fileNameBase = [NSString stringWithFormat:@"%lx_", (long)[NSDate date].timeIntervalSince1970];
 
     const int count = (int)self.photoData.count;
-    NSMutableArray *URLs = [NSMutableArray arrayWithCapacity:count];
-    dispatch_semaphore_t finishedSemaphore = dispatch_semaphore_create(1);
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         for (int index = 0; index < count; ++index) {
             PhotoData *photoData = self.photoData[index];
@@ -433,80 +394,39 @@ enum {
             CGImageDestinationAddImage(dest, imageRef, (__bridge CFDictionaryRef)metadata);
             CGImageDestinationFinalize(dest);
             CFRelease(dest);
-            [URLs addObject:data];
+            CFRelease(imageRef);
+            photoData.resizedImageData = data;
 
             if (inAlbum) {
                 dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-                /*[assetsLibrary writeImageToSavedPhotosAlbum:imageRef
-                                                   metadata:metadata
-                                            completionBlock:^(NSURL *assetURL, NSError *error) {
-                                                //NSLog(@"inde:%d", index);
-                                                //NSLog(@"URL:%@", assetURL);
-                                                dispatch_semaphore_wait(finishedSemaphore, DISPATCH_TIME_FOREVER);
-                                                if(error) {
-                                                    NSLog(@"error:%@", error);
-                                                    [URLs addObject:[NSNull null]];
-                                                } else if (mode != UIImageData) {
-                                                    [URLs addObject:assetURL];
-                                                }
-                                                dispatch_semaphore_signal(finishedSemaphore);
-                                                CFRelease(imageRef);
-                                                dispatch_semaphore_signal(semaphore);
-                                            }];*/
+                [data writeToFile:tempPath atomically: NO];
                 [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-                    // Create PHAsset from UIImage
-                    PHAssetChangeRequest *assetChangeRequest = [PHAssetChangeRequest creationRequestForAssetFromImage:];
-                    
+                    // Create PHAsset from temporary file
+                    PHAssetChangeRequest *assetChangeRequest = [PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:tempUrl];
                     PHObjectPlaceholder *assetPlaceholder = assetChangeRequest.placeholderForCreatedAsset;
-                    localIdentifier = assetPlaceholder.localIdentifier;
-                    
                     // Add PHAsset to PHAssetCollection
-                    PHAssetCollectionChangeRequest *assetCollectionChangeRequest = [PHAssetCollectionChangeRequest changeRequestForAssetCollection:self.assetCollection];
+                    PHAssetCollectionChangeRequest *assetCollectionChangeRequest = [PHAssetCollectionChangeRequest changeRequestForAssetCollection:album];
                     [assetCollectionChangeRequest addAssets:@[assetPlaceholder]];
-                    
                 } completionHandler:^(BOOL success, NSError *error) {
                     if (!success) {
                         NSLog(@"creating Asset Error: %@", error);
-                    } else {
-                        NSLog(@"creating Asset Success");
-                        PHFetchResult *assets = [PHAsset fetchAssetsWithLocalIdentifiers:@[localIdentifier] options:nil];
-                        PHAsset *asset = assets[0];
-                        
-                        NSNumber *latitude = assetInfo[@"latitude"];
-                        NSNumber *longitude = assetInfo[@"longitude"];
-                        
-                        if (latitude && longitude) {
-                            // add location data
-                            CLLocation *location = [[CLLocation alloc]initWithLatitude:latitude.doubleValue longitude:longitude.doubleValue];
-                            if ([asset canPerformEditOperation:PHAssetEditOperationProperties]) {
-                                [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-                                    PHAssetChangeRequest *request = [PHAssetChangeRequest changeRequestForAsset:asset];
-                                    [request setLocation:location];
-                                } completionHandler:^(BOOL success, NSError *error) {
-                                    if (success) {
-                                        NSLog(@"%s add location data success", __PRETTY_FUNCTION__);
-                                    }
-                                }];
-                            }
-                        } else {
-                            NSLog(@"latitude or longitude value is nil");
-                        }
                     }
+                    dispatch_semaphore_signal(semaphore);
                 }];
                 dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
             } else {
                 CFRelease(imageRef);
             }
         }
-        [self performSelectorOnMainThread:selector withObject:URLs waitUntilDone:NO];
+        [self performSelectorOnMainThread:selector withObject:nil waitUntilDone:NO];
     });
 }
 
-- (int)failedCountFronURLs:(NSArray*)URLs
+- (int)failedCount
 {
     int failed = 0;
-    for (id URL in URLs) {
-        if ([URL isKindOfClass:[NSNull class]]) {
+    for (PhotoData *photoData in self.photoData) {
+        if (!photoData.resizedImageData) {
             ++failed;
         }
     }
