@@ -33,6 +33,8 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 @property (nonatomic, copy) NSArray *fetchResults;
 @property (nonatomic, copy) NSArray *assetCollections;
 
+@property (nonatomic, assign) BOOL isPendingSelectFirstAlbum;
+
 @end
 
 @implementation QBAlbumsViewController
@@ -54,13 +56,24 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
 }
 
+- (void)selectFirstAlbumForce
+{
+    [self.tableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] animated:NO scrollPosition:UITableViewScrollPositionTop];
+    [self showAssetsViewController];
+    self.isPendingSelectFirstAlbum = NO;
+}
+
 - (void)viewWillAppear:(BOOL)animated
 {
     //20151128 yizumi
+    self.isPendingSelectFirstAlbum = NO;
     [super viewWillAppear:self.imagePickerController.showFirstAlbumDirectly ? NO : animated];
     if (self.imagePickerController.showFirstAlbumDirectly) {
-        [self.tableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] animated:NO scrollPosition:UITableViewScrollPositionTop];
-        [self showAssetsViewController];
+        if ([self.tableView numberOfRowsInSection:0]) {
+            [self selectFirstAlbumForce];
+        } else {
+            self.isPendingSelectFirstAlbum = YES;
+        }
     }
     
     // Configure navigation item
@@ -405,6 +418,10 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
             // Reload albums
             [self updateAssetCollections];
             [self.tableView reloadData];
+            //20151212 yizumi
+            if ([self.tableView numberOfRowsInSection:0]) {
+                [self selectFirstAlbumForce];
+            }
         }
     });
 }
