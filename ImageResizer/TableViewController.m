@@ -353,6 +353,33 @@ enum {
     [self presentViewController:viewController animated:YES completion:nil];
 }
 
+
+- (void)createTemporaryAlbumWithCompletionHandler:(void (^)(PHAssetCollection *albim))handler
+{
+    NSString *albumTitle = NSLocalizedString(@"Image Resizer Shrinked Photos", "");
+    PHFetchOptions *options = [PHFetchOptions new];
+    options.predicate = [NSPredicate predicateWithFormat:@"localizedTitle == %@", albumTitle];
+    PHFetchResult *albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeAny options:options];
+    
+    if (albums.count > 0) {
+        // Album is exist
+        handler(albums[0]);
+    } else {
+        // Create new album.
+        [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+            [PHAssetCollectionChangeRequest creationRequestForAssetCollectionWithTitle:albumTitle];
+        } completionHandler:^(BOOL success, NSError *error) {
+            if (!success) {
+                NSLog(@"Error creating AssetCollection: %@", error);
+                handler(nil);
+            } else {
+                PHFetchResult *albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeAny options:options];
+                handler(albums[0]);
+            }
+        }];
+    }
+}
+
 - (void)savePhotos:(SEL)selector inAlbum:(BOOL)inAlbum
 {
     self.tableView.userInteractionEnabled = NO;
@@ -360,19 +387,12 @@ enum {
     
     NSString *tempPath;
     NSURL *tempUrl;
-    PHAssetCollection *album;
     if (inAlbum) {
-        PHFetchResult<PHAssetCollection *> *result = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary options:nil];
-        if (!result) {
-            return;
-        }
-        album = result.firstObject;
-        tempPath = [NSString stringWithFormat:@"%@ImageResizer_%ld.jpg", NSTemporaryDirectory(), (long)[NSDate date].timeIntervalSince1970];
+        tempPath = [NSString stringWithFormat:@"%@ImageResizer.jpg", NSTemporaryDirectory()];
         tempUrl = [NSURL fileURLWithPath:tempPath];
     } else {
         tempPath = nil;
         tempUrl = nil;
-        album = nil;
     }
     
     SizeManager *sizeManager = [SizeManager sharedInstance];
@@ -383,6 +403,15 @@ enum {
 
     const int count = (int)self.photoData.count;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        __block PHAssetCollection *album;
+        if (inAlbum) {
+            dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+            [self createTemporaryAlbumWithCompletionHandler:^(PHAssetCollection *tempAlbum) {
+                album = tempAlbum;
+                dispatch_semaphore_signal(semaphore);
+            }];
+            dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+        }
         for (int index = 0; index < count; ++index) {
             PhotoData *photoData = self.photoData[index];
             CGSize size = [sizes[index] CGSizeValue];
@@ -404,12 +433,14 @@ enum {
                     // Create PHAsset from temporary file
                     PHAssetChangeRequest *assetChangeRequest = [PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:tempUrl];
                     PHObjectPlaceholder *assetPlaceholder = assetChangeRequest.placeholderForCreatedAsset;
+                    NSLog(@"%@", assetPlaceholder.localIdentifier);
                     // Add PHAsset to PHAssetCollection
                     PHAssetCollectionChangeRequest *assetCollectionChangeRequest = [PHAssetCollectionChangeRequest changeRequestForAssetCollection:album];
                     [assetCollectionChangeRequest addAssets:@[assetPlaceholder]];
                 } completionHandler:^(BOOL success, NSError *error) {
                     if (!success) {
                         NSLog(@"creating Asset Error: %@", error);
+                        photoData.resizedImageData = nil;
                     }
                     dispatch_semaphore_signal(semaphore);
                 }];
