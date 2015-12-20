@@ -38,6 +38,7 @@
 		0661F7E21C09CB7B00E05841 /* statusicon_notload.png in Resources */ = {isa = PBXBuildFile; fileRef = 0661F7DF1C09CB7B00E05841 /* statusicon_notload.png */; };
 		0661F7E31C09CB7B00E05841 /* statusicon_notload@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0661F7E01C09CB7B00E05841 /* statusicon_notload@2x.png */; };
 		066F2EAE1880FF0E0031A08B /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 066F2EAD1880FF0E0031A08B /* MessageUI.framework */; };
+		066F81C11C24C8640024B34B /* NumberOfColumnsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 066F81C01C24C8640024B34B /* NumberOfColumnsViewController.m */; };
 		068C28221877FBA700056ED9 /* TableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 065CF3D618740DFF008C3DFC /* TableViewController.m */; };
 		069E40DC1875154100823920 /* SizeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 069E40DB1875154100823920 /* SizeManager.m */; };
 		069E40DF187527A500823920 /* PhotoData.m in Sources */ = {isa = PBXBuildFile; fileRef = 069E40DE187527A500823920 /* PhotoData.m */; };
@@ -80,9 +81,7 @@
 		065CF3D618740DFF008C3DFC /* TableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableViewController.m; sourceTree = "<group>"; };
 		065CF3D818741370008C3DFC /* SelectSizeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectSizeViewController.h; sourceTree = "<group>"; };
 		065CF3D918741370008C3DFC /* SelectSizeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectSizeViewController.m; sourceTree = "<group>"; };
-		0661F7B61C09971700E05841 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
 		0661F7B71C09971700E05841 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
-		0661F7B81C09971700E05841 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
 		0661F7B91C09971700E05841 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0661F7BA1C09971700E05841 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/QBImagePicker.strings; sourceTree = "<group>"; };
 		0661F7BB1C09971700E05841 /* QBAlbumCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QBAlbumCell.h; sourceTree = "<group>"; };
@@ -105,12 +104,13 @@
 		0661F7CC1C09971700E05841 /* QBVideoIconView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QBVideoIconView.m; sourceTree = "<group>"; };
 		0661F7CD1C09971700E05841 /* QBVideoIndicatorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QBVideoIndicatorView.h; sourceTree = "<group>"; };
 		0661F7CE1C09971700E05841 /* QBVideoIndicatorView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QBVideoIndicatorView.m; sourceTree = "<group>"; };
-		0661F7CF1C09971700E05841 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/QBImagePicker.strings"; sourceTree = "<group>"; };
 		0661F7DC1C09B5D200E05841 /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
 		0661F7DE1C09CB7B00E05841 /* statusicon_notload@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "statusicon_notload@3x.png"; sourceTree = "<group>"; };
 		0661F7DF1C09CB7B00E05841 /* statusicon_notload.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = statusicon_notload.png; sourceTree = "<group>"; };
 		0661F7E01C09CB7B00E05841 /* statusicon_notload@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "statusicon_notload@2x.png"; sourceTree = "<group>"; };
 		066F2EAD1880FF0E0031A08B /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		066F81BF1C24C8640024B34B /* NumberOfColumnsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NumberOfColumnsViewController.h; sourceTree = "<group>"; };
+		066F81C01C24C8640024B34B /* NumberOfColumnsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NumberOfColumnsViewController.m; sourceTree = "<group>"; };
 		069E40D91875148E00823920 /* Consts.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Consts.h; sourceTree = "<group>"; };
 		069E40DA1875154100823920 /* SizeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SizeManager.h; sourceTree = "<group>"; };
 		069E40DB1875154100823920 /* SizeManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SizeManager.m; sourceTree = "<group>"; };
@@ -213,6 +213,8 @@
 				06CD682C1876602900ACA6A9 /* Localizable.strings */,
 				06CD1942188784A0000A7F61 /* SettingsViewController.h */,
 				06CD1943188784A0000A7F61 /* SettingsViewController.m */,
+				066F81BF1C24C8640024B34B /* NumberOfColumnsViewController.h */,
+				066F81C01C24C8640024B34B /* NumberOfColumnsViewController.m */,
 			);
 			path = ImageResizer;
 			sourceTree = "<group>";
@@ -351,9 +353,6 @@
 				en,
 				Base,
 				ja,
-				de,
-				es,
-				"zh-Hans",
 			);
 			mainGroup = 065CF35818740545008C3DFC;
 			productRefGroup = 065CF36218740545008C3DFC /* Products */;
@@ -410,6 +409,7 @@
 				065CF37518740546008C3DFC /* AppDelegate.m in Sources */,
 				069E40DC1875154100823920 /* SizeManager.m in Sources */,
 				0661F7DB1C09971800E05841 /* QBVideoIndicatorView.m in Sources */,
+				066F81C11C24C8640024B34B /* NumberOfColumnsViewController.m in Sources */,
 				0661F7D51C09971800E05841 /* QBAssetsViewController.m in Sources */,
 				0661F7D21C09971800E05841 /* QBAlbumCell.m in Sources */,
 				065CF37118740546008C3DFC /* main.m in Sources */,
@@ -469,11 +469,8 @@
 		0661F7B51C09971700E05841 /* QBImagePicker.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				0661F7B61C09971700E05841 /* de */,
 				0661F7B71C09971700E05841 /* en */,
-				0661F7B81C09971700E05841 /* es */,
 				0661F7BA1C09971700E05841 /* ja */,
-				0661F7CF1C09971700E05841 /* zh-Hans */,
 			);
 			name = QBImagePicker.strings;
 			sourceTree = "<group>";

@@ -13,8 +13,11 @@
 #define RESIZED_LONG_SIDE_LENGTHS           { 320, 640, 800, 1024, 1200 }
 #define DEFAULT_RESIZED_LONG_SIDE_LENGTH    800
 
+#define DEFAULT_NUMBER_OF_COLUMNS           4
+
 #define USER_DEFAULTS_KEY_DEFAULT_RESIZED_LONG_SIZE_LENGTH  @"LongSideLength"
 #define USER_DEFAULTS_KEY_LEAVE_MAIL_PHOTOS                 @"LeaveMailPhotos"
+#define USER_DEFAULTS_KEY_NUMBER_OF_COLUMNS                 @"NumberOfColumns"
 #define USER_DEFAULTS_KEY_SHOW_CAMERA_ROLL_DIRECTLY         @"ShowCameraRollDirectly"
 #define USER_DEFAULTS_KEY_RECENT_ALBUM_ID                   @"RecentAlbumId"
 

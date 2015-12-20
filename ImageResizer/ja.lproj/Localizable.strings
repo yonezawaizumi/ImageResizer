@@ -7,6 +7,8 @@
 */
 
 "Image Resizer Shrinked Photos" = "イメージリサイズで縮小した画像";
+"Image Picker" = "画像選択画面";
+"%d columns" = "横 %d枚";
 "Select an Album" = "アルバム";
 "Pick Photo" = "写真";
 "Pick Photos" = "写真";

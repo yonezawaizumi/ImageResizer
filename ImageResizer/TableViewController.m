@@ -558,7 +558,11 @@ enum {
     imagePickerController.mediaType = QBImagePickerMediaTypeImage;
     imagePickerController.allowsMultipleSelection = YES;
     imagePickerController.showsNumberOfSelectedAssets = YES;
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSNumber *numberOfColumnsValue = [userDefaults objectForKey:USER_DEFAULTS_KEY_NUMBER_OF_COLUMNS];
+    imagePickerController.numberOfColumnsInPortrait = numberOfColumnsValue ? [numberOfColumnsValue integerValue] : DEFAULT_NUMBER_OF_COLUMNS;
     imagePickerController.showFirstAlbumDirectly = YES;
+    imagePickerController.minimumNumberOfSelection = 0;
     imagePickerController.maximumNumberOfSelection = MAXIMUM_IMAGES_COUNT;
     self.modalView = imagePickerController;
     [self presentViewController:imagePickerController animated:sender != nil completion:nil];

@@ -12,6 +12,7 @@
 @interface SettingsViewController ()
 
 @property(nonatomic, strong) UITableViewCell *leaveMailPhotosCell;
+@property(nonatomic, strong) UITableViewCell *numberOfColumnsCell;
 
 @end
 
@@ -40,6 +41,12 @@ enum {
  
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [self.tableView reloadData];
 }
 
 - (void)didReceiveMemoryWarning
@@ -77,7 +84,7 @@ enum {
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Return the number of sections.
-    return 1;
+    return 2;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -85,6 +92,7 @@ enum {
     // Return the number of rows in the section.
     switch (section) {
         case 0:
+        case 1:
             return 1;
         default:
             break;
@@ -97,6 +105,8 @@ enum {
     switch (section) {
         case 0:
             return NSLocalizedString(@"Attached Photos In Mail", nil);
+        case 1:
+            return NSLocalizedString(@"Image Picker", nil);
         default:
             break;
     }
@@ -119,6 +129,17 @@ enum {
             [self updateLeaveMailPhotosState:leaveMailPhotos];
             break;
         }
+        case 1:
+        {
+            NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+            NSNumber *numberOfColumnsValue = [userDefaults objectForKey:USER_DEFAULTS_KEY_NUMBER_OF_COLUMNS];
+            if (!self.numberOfColumnsCell) {
+                self.numberOfColumnsCell = [tableView dequeueReusableCellWithIdentifier:@"NumberOfColumns" forIndexPath:indexPath];
+            }
+            cell = self.numberOfColumnsCell;
+            cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%d columns", nil), numberOfColumnsValue ? [numberOfColumnsValue intValue] : DEFAULT_NUMBER_OF_COLUMNS];
+            break;
+        }
         default:
             break;
     }
@@ -126,6 +147,15 @@ enum {
     // Configure the cell...
     
     return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    switch (indexPath.section) {
+        case 1:
+            [self performSegueWithIdentifier:@"toNumberOfColumns" sender:self];
+            break;
+    }
 }
 
 /*
@@ -176,7 +206,6 @@ enum {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
 }
-
- */
+*/
 
 @end
