@@ -36,3 +36,6 @@
 "Cannot Tweet" = "ツイートできません";
 "Cannot Attach Photo" = "写真を添付できません";
 "Only 1 Attached Photo" = "写真は1枚しか添付できません";
+"Denied" = "アクセスできません";
+"Photo Library Access Denied\n\n Please Allow Accessing At \"Settings - Privacy - Photos\"" = "フォトライブラリーにアクセスできません\n\n\"設定 - プライバシー - 写真\"からアクセスを許可してください";
+"Photo Library Access Denied\n\n Please Allow Accessing At \"Settings - General - Restrictions\"" = "フォトライブラリーにアクセスできません\n\n\"設定 - 一般 - 機能制限\"からアクセスを許可してください";

@@ -36,6 +36,7 @@ enum {
     AlertClearAll = 1,
     AlertSaved = 2,
     AlertMailDisabled = 3,
+    AlertDenied = 4,
 };
 
 @implementation TableViewController
@@ -545,6 +546,8 @@ enum {
         case AlertMailDisabled:
             [self updateButtons];
             break;
+        case AlertDenied:
+            break;
     }
     if (showSelectView) {
         [self showPicker:nil];
@@ -552,6 +555,47 @@ enum {
 }
 
 - (void)showPicker:(id)sender
+{
+    if (self.modalView && [self.modalView isKindOfClass:[QBImagePickerController class]]) {
+        return;
+    }
+    NSString *messageKey = nil;
+    switch ([PHPhotoLibrary authorizationStatus]) {
+        case PHAuthorizationStatusAuthorized:
+            [self showPickerAnimated:sender != nil];
+            break;
+        case PHAuthorizationStatusDenied:
+            messageKey = @"Photo Library Access Denied\n\n Please Allow Accessing At \"Settings - Privacy - Photos\"";
+            break;
+        case PHAuthorizationStatusRestricted:
+            messageKey = @"Photo Library Access Denied\n\n Please Allow Accessing At \"Settings - General - Restrictions\"";
+            break;
+        case PHAuthorizationStatusNotDetermined:
+            [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+                if (status == PHAuthorizationStatusAuthorized) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (!self.modalView || ![self.modalView isKindOfClass:[QBImagePickerController class]]) {
+                            [self showPickerAnimated:sender != nil];
+                        }
+                    });
+                }
+            }];
+            break;
+    }
+    if (messageKey) {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Denied", nil)
+                                                        message:NSLocalizedString(messageKey, nil)
+                                                       delegate:self
+                                              cancelButtonTitle:nil
+                                              otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
+        alert.tag = AlertDenied;
+        self.modalView = alert;
+        self.modalViewCancelIndex = 0;
+        [alert show];
+    }
+}
+
+- (void)showPickerAnimated:(BOOL)animated
 {
 	QBImagePickerController *imagePickerController = [QBImagePickerController new];
     imagePickerController.delegate = self;
@@ -565,7 +609,7 @@ enum {
     imagePickerController.minimumNumberOfSelection = 0;
     imagePickerController.maximumNumberOfSelection = MAXIMUM_IMAGES_COUNT;
     self.modalView = imagePickerController;
-    [self presentViewController:imagePickerController animated:sender != nil completion:nil];
+    [self presentViewController:imagePickerController animated:animated completion:nil];
 }
 
 - (void)qb_imagePickerController:(QBImagePickerController *)imagePickerController didFinishPickingAssets:(NSArray *)assets;

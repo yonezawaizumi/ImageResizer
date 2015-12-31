@@ -49,6 +49,16 @@ enum {
     [self.tableView reloadData];
 }
 
+//plusで左マージン値が異なる問題に対するダーティーハック
+- (void)viewDidLayoutSubviews
+{
+    [super viewDidLayoutSubviews];
+    UILabel *label = (UILabel *)[self.leaveMailPhotosCell viewWithTag:LeavePhotosTitle];
+    CGRect rect = label.frame;
+    rect.origin.x = self.tableView.separatorInset.left;
+    label.frame = rect;
+}
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
