@@ -17,8 +17,8 @@
 @end
 
 enum {
-    LeavePhotosTitle = 1,
-    LeavePhotosSwitch = 2,
+    Title = 1,
+    Switch = 2,
 };
 
 @implementation SettingsViewController
@@ -49,16 +49,6 @@ enum {
     [self.tableView reloadData];
 }
 
-//plusで左マージン値が異なる問題に対するダーティーハック
-- (void)viewDidLayoutSubviews
-{
-    [super viewDidLayoutSubviews];
-    UILabel *label = (UILabel *)[self.leaveMailPhotosCell viewWithTag:LeavePhotosTitle];
-    CGRect rect = label.frame;
-    rect.origin.x = self.tableView.separatorInset.left;
-    label.frame = rect;
-}
-
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -83,9 +73,9 @@ enum {
 
 - (void)updateLeaveMailPhotosState:(BOOL)leave
 {
-    UILabel *label = (UILabel *)[self.leaveMailPhotosCell viewWithTag:LeavePhotosTitle];
+    UILabel *label = (UILabel *)[self.leaveMailPhotosCell viewWithTag:Title];
     label.text = leave ? NSLocalizedString(@"Leave In Album", nil) : NSLocalizedString(@"Remove From Album", nil);
-    UISwitch *on = (UISwitch *)[self.leaveMailPhotosCell viewWithTag:LeavePhotosSwitch];
+    UISwitch *on = (UISwitch *)[self.leaveMailPhotosCell viewWithTag:Switch];
     on.on = leave;
 }
 
@@ -147,7 +137,7 @@ enum {
                 self.numberOfColumnsCell = [tableView dequeueReusableCellWithIdentifier:@"NumberOfColumns" forIndexPath:indexPath];
             }
             cell = self.numberOfColumnsCell;
-            cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%d columns", nil), numberOfColumnsValue ? [numberOfColumnsValue intValue] : DEFAULT_NUMBER_OF_COLUMNS];
+            ((UILabel *)[cell viewWithTag:Title]).text = [NSString stringWithFormat:NSLocalizedString(@"%d columns", nil), numberOfColumnsValue ? [numberOfColumnsValue intValue] : DEFAULT_NUMBER_OF_COLUMNS];
             break;
         }
         default:

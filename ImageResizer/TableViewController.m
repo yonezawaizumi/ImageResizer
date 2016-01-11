@@ -39,6 +39,12 @@ enum {
     AlertDenied = 4,
 };
 
+enum {
+    Image = 1,
+    Title = 2,
+    Subtitle = 3,
+};
+
 @implementation TableViewController
 
 - (id)init
@@ -311,14 +317,14 @@ enum {
     
     SLComposeViewController *viewController = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
     
-    [viewController setCompletionHandler:^(SLComposeViewControllerResult result) {
+    /*[viewController setCompletionHandler:^(SLComposeViewControllerResult result) {
         switch (result) {
             case SLComposeViewControllerResultDone:
                 break;
             case SLComposeViewControllerResultCancelled:
                 break;
         }
-    }];
+    }];*/
 
     
     if (![viewController addImage:[UIImage imageWithData:((PhotoData *)self.photoData[0]).resizedImageData]]) {
@@ -333,6 +339,7 @@ enum {
         self.modalView = alert;
         self.modalViewCancelIndex = 0;
         [alert show];
+        return;
     }
     
     [viewController setCompletionHandler:^(SLComposeViewControllerResult result) {
@@ -434,7 +441,7 @@ enum {
                     // Create PHAsset from temporary file
                     PHAssetChangeRequest *assetChangeRequest = [PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:tempUrl];
                     PHObjectPlaceholder *assetPlaceholder = assetChangeRequest.placeholderForCreatedAsset;
-                    NSLog(@"%@", assetPlaceholder.localIdentifier);
+                    //NSLog(@"%@", assetPlaceholder.localIdentifier);
                     // Add PHAsset to PHAssetCollection
                     PHAssetCollectionChangeRequest *assetCollectionChangeRequest = [PHAssetCollectionChangeRequest changeRequestForAssetCollection:album];
                     [assetCollectionChangeRequest addAssets:@[assetPlaceholder]];
@@ -446,8 +453,6 @@ enum {
                     dispatch_semaphore_signal(semaphore);
                 }];
                 dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-            } else {
-                CFRelease(imageRef);
             }
         }
         [self performSelectorOnMainThread:selector withObject:nil waitUntilDone:NO];
@@ -652,7 +657,7 @@ enum {
                                      CGImageSourceRef imageSource = CGImageSourceCreateWithData((CFDataRef)imageData, nil);
                                      NSDictionary *metadata = (__bridge NSDictionary *)CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil);
                                      if (metadata) {
-                                         NSString *dateString = photoData.metadata[(NSString *)kCGImagePropertyExifDictionary][@"DateTimeOriginal"];
+                                         NSString *dateString = metadata[(NSString *)kCGImagePropertyExifDictionary][@"DateTimeOriginal"];
                                          if (dateString) {
                                              photoData.metadata = [NSMutableDictionary dictionaryWithDictionary:metadata];
                                              photoData.dateString = [NSString stringWithFormat:NSLocalizedString(@"%@", nil), dateString];
@@ -683,6 +688,7 @@ enum {
 
 - (void)qb_imagePickerControllerDidCancel:(QBImagePickerController *)imagePickerController
 {
+    self.modalView = nil;
     [imagePickerController dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -761,15 +767,18 @@ enum {
     
     PhotoData *photoData = self.photoData[indexPath.row];
     CGSize size = [sizeManager resizedSizeWithLongSideLength:photoData.longSideLength originalSize:photoData.originalSize];
-    cell.textLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%hu x %hu -> %hu X %hu", nil),
-                           (unsigned short)photoData.originalSize.width,
-                           (unsigned short)photoData.originalSize.height,
-                           (unsigned short)size.width,
-                           (unsigned short)size.height];
+    UILabel *label = [cell viewWithTag:Title];
+    label.text = [NSString stringWithFormat:NSLocalizedString(@"%hu x %hu -> %hu X %hu", nil),
+                   (unsigned short)photoData.originalSize.width,
+                   (unsigned short)photoData.originalSize.height,
+                   (unsigned short)size.width,
+                   (unsigned short)size.height];
     
     //NSLog(@"%@", photoData.metadata);
-    cell.detailTextLabel.text = photoData.dateString;
-    cell.imageView.image = photoData.thumbnail ? photoData.thumbnail : [UIImage imageNamed:@"statusicon_notload"];
+    label = [cell viewWithTag:Subtitle];
+    label.text = photoData.dateString;
+    UIImageView *imageView = [cell viewWithTag:Image];
+    imageView.image = photoData.thumbnail ? photoData.thumbnail : [UIImage imageNamed:@"statusicon_notload"];
     
     //NSLog(@"%@", photoData.location);
     

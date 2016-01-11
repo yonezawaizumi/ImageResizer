@@ -42,6 +42,7 @@
 		068C28221877FBA700056ED9 /* TableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 065CF3D618740DFF008C3DFC /* TableViewController.m */; };
 		069E40DC1875154100823920 /* SizeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 069E40DB1875154100823920 /* SizeManager.m */; };
 		069E40DF187527A500823920 /* PhotoData.m in Sources */ = {isa = PBXBuildFile; fileRef = 069E40DE187527A500823920 /* PhotoData.m */; };
+		06A2153C1C38C8AE00FD7DF5 /* UnboundedBlockingQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 06A2153B1C38C8AE00FD7DF5 /* UnboundedBlockingQueue.m */; };
 		06CD1944188784A0000A7F61 /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 06CD1943188784A0000A7F61 /* SettingsViewController.m */; };
 		06CD682A1876602900ACA6A9 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 06CD682C1876602900ACA6A9 /* Localizable.strings */; };
 		06CF9A3718949E2A00F17A59 /* settings@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 06CF9A3518949E2A00F17A59 /* settings@2x.png */; };
@@ -116,6 +117,8 @@
 		069E40DB1875154100823920 /* SizeManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SizeManager.m; sourceTree = "<group>"; };
 		069E40DD187527A500823920 /* PhotoData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotoData.h; sourceTree = "<group>"; };
 		069E40DE187527A500823920 /* PhotoData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PhotoData.m; sourceTree = "<group>"; };
+		06A2153B1C38C8AE00FD7DF5 /* UnboundedBlockingQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UnboundedBlockingQueue.m; path = ImageResizer/UnboundedBlockingQueue.m; sourceTree = "<group>"; };
+		06A2153E1C38C96A00FD7DF5 /* UnboundedBlockingQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UnboundedBlockingQueue.h; path = ImageResizer/UnboundedBlockingQueue.h; sourceTree = "<group>"; };
 		06CD1942188784A0000A7F61 /* SettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
 		06CD1943188784A0000A7F61 /* SettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
 		06CD68231875B0B200ACA6A9 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
@@ -160,6 +163,7 @@
 		065CF35818740545008C3DFC = {
 			isa = PBXGroup;
 			children = (
+				06A2153A1C38C84900FD7DF5 /* UnboundBlockingDeque */,
 				0661F7B41C09971700E05841 /* QBImagePicker */,
 				065CF36A18740546008C3DFC /* ImageResizer */,
 				065CF38918740546008C3DFC /* ImageResizerTests */,
@@ -276,6 +280,15 @@
 			);
 			name = QBImagePicker;
 			path = ImageResizer/QBImagePicker;
+			sourceTree = "<group>";
+		};
+		06A2153A1C38C84900FD7DF5 /* UnboundBlockingDeque */ = {
+			isa = PBXGroup;
+			children = (
+				06A2153E1C38C96A00FD7DF5 /* UnboundedBlockingQueue.h */,
+				06A2153B1C38C8AE00FD7DF5 /* UnboundedBlockingQueue.m */,
+			);
+			name = UnboundBlockingDeque;
 			sourceTree = "<group>";
 		};
 		06CF9A3418949E1A00F17A59 /* Resources */ = {
@@ -411,6 +424,7 @@
 				0661F7DB1C09971800E05841 /* QBVideoIndicatorView.m in Sources */,
 				066F81C11C24C8640024B34B /* NumberOfColumnsViewController.m in Sources */,
 				0661F7D51C09971800E05841 /* QBAssetsViewController.m in Sources */,
+				06A2153C1C38C8AE00FD7DF5 /* UnboundedBlockingQueue.m in Sources */,
 				0661F7D21C09971800E05841 /* QBAlbumCell.m in Sources */,
 				065CF37118740546008C3DFC /* main.m in Sources */,
 				0661F7D91C09971800E05841 /* QBSlomoIconView.m in Sources */,

@@ -14,6 +14,8 @@
 #import "QBAssetCell.h"
 #import "QBVideoIndicatorView.h"
 
+#import "UnboundedBlockingQueue.h"
+
 static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     return CGSizeMake(size.width * scale, size.height * scale);
 }
@@ -66,6 +68,9 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 @property (nonatomic, assign) BOOL disableScrollToBottom;
 @property (nonatomic, strong) NSIndexPath *lastSelectedItemIndexPath;
 
+@property (nonatomic, assign) BOOL isMovingToParent;
+@property (nonatomic, strong) UnboundedBlockingQueue *blockQueue;
+
 @end
 
 @implementation QBAssetsViewController
@@ -85,6 +90,20 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 {
     [super viewWillAppear:animated];
     
+    UnboundedBlockingQueue *blockQueue = [[UnboundedBlockingQueue alloc] init];
+    self.blockQueue = blockQueue;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        for (;;) {
+            id data = [blockQueue take:1000];
+            if (data == blockQueue.finalizer) {
+                //[self.imageManager stopCachingImagesForAllAssets];
+                return;
+            } else if (data) {
+                ((void (^)())data)();
+            }
+        }
+    });
+
     // Configure navigation item
     self.navigationItem.title = self.assetCollection.localizedTitle;
     self.navigationItem.prompt = self.imagePickerController.prompt;
@@ -101,13 +120,20 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     
     [self updateDoneButtonState];
     [self updateSelectionInfo];
+    self.isMovingToParent = self.isMovingToParentViewController;
     [self.collectionView reloadData];
     
+}
+
+- (void)viewDidLayoutSubviews
+{
+    [super viewDidLayoutSubviews];
     // Scroll to bottom
-    if (self.fetchResult.count > 0 && self.isMovingToParentViewController && !self.disableScrollToBottom) {
+    if (self.fetchResult.count > 0 && self.isMovingToParent && !self.disableScrollToBottom) {
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:(self.fetchResult.count - 1) inSection:0];
         [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
     }
+    self.isMovingToParent = NO;
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -115,6 +141,13 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     [super viewWillDisappear:animated];
     
     self.disableScrollToBottom = YES;
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+    [super viewDidDisappear:animated];
+    [self.blockQueue shutdown];
+    self.blockQueue = nil;
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -142,6 +175,8 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
 
 - (void)dealloc
 {
+    [self.imageManager stopCachingImagesForAllAssets];
+    self.imageManager = nil;
     // Deregister observer
     [[PHPhotoLibrary sharedPhotoLibrary] unregisterChangeObserver:self];
 }
@@ -320,15 +355,17 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
         CGSize itemSize = [(UICollectionViewFlowLayout *)self.collectionViewLayout itemSize];
         CGSize targetSize = CGSizeScale(itemSize, self.traitCollection.displayScale);
         
-        [self.imageManager startCachingImagesForAssets:assetsToStartCaching
-                                            targetSize:targetSize
-                                           contentMode:PHImageContentModeAspectFill
-                                               options:nil];
-        [self.imageManager stopCachingImagesForAssets:assetsToStopCaching
-                                           targetSize:targetSize
-                                          contentMode:PHImageContentModeAspectFill
-                                              options:nil];
-        
+        [self.blockQueue put:^{
+            [self.imageManager stopCachingImagesForAssets:assetsToStopCaching
+                                               targetSize:targetSize
+                                              contentMode:PHImageContentModeAspectFill
+                                                  options:nil];
+            [self.imageManager startCachingImagesForAssets:assetsToStartCaching
+                                                targetSize:targetSize
+                                               contentMode:PHImageContentModeAspectFill
+                                                   options:nil];
+        }];
+
         self.previousPreheatRect = preheatRect;
     }
 }
@@ -449,16 +486,19 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
     CGSize itemSize = [(UICollectionViewFlowLayout *)collectionView.collectionViewLayout itemSize];
     CGSize targetSize = CGSizeScale(itemSize, self.traitCollection.displayScale);
     
-    [self.imageManager requestImageForAsset:asset
-                                 targetSize:targetSize
-                                contentMode:PHImageContentModeAspectFill
-                                    options:nil
-                              resultHandler:^(UIImage *result, NSDictionary *info) {
-                                  if (cell.tag == indexPath.item) {
-                                      cell.imageView.image = result;
-                                  }
-                              }];
-    
+    [self.blockQueue put:^{
+        [self.imageManager requestImageForAsset:asset
+                                     targetSize:targetSize
+                                    contentMode:PHImageContentModeAspectFill
+                                        options:nil
+                                  resultHandler:^(UIImage *result, NSDictionary *info) {
+                                      if (cell.tag == indexPath.item) {
+                                          dispatch_async(dispatch_get_main_queue(), ^{
+                                              cell.imageView.image = result;
+                                          });
+                                      }
+                                  }];
+    }];
     // Video indicator
     if (asset.mediaType == PHAssetMediaTypeVideo) {
         cell.videoIndicatorView.hidden = NO;
