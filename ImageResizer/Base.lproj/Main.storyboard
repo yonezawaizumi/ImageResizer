@@ -23,14 +23,14 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <imageView userInteractionEnabled="NO" tag="1" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="XRZ-3m-plb">
-                                            <rect key="frame" x="8" y="1" width="58" height="42"/>
+                                            <rect key="frame" x="8" y="2" width="52" height="39"/>
                                             <constraints>
-                                                <constraint firstAttribute="height" constant="42" id="M5n-Hz-5Je"/>
-                                                <constraint firstAttribute="width" constant="58" id="cH3-bJ-LOb"/>
+                                                <constraint firstAttribute="height" constant="39" id="M5n-Hz-5Je"/>
+                                                <constraint firstAttribute="width" constant="52" id="cH3-bJ-LOb"/>
                                             </constraints>
                                         </imageView>
                                         <label opaque="NO" userInteractionEnabled="NO" tag="2" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="9" translatesAutoresizingMaskIntoConstraints="NO" id="psc-dc-v2A">
-                                            <rect key="frame" x="74" y="3" width="213" height="21"/>
+                                            <rect key="frame" x="68" y="3" width="219" height="21"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="21" id="HvU-c3-fMN"/>
                                             </constraints>
@@ -39,7 +39,7 @@
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" tag="3" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="9" translatesAutoresizingMaskIntoConstraints="NO" id="lSi-Yb-04b">
-                                            <rect key="frame" x="74" y="26" width="213" height="13"/>
+                                            <rect key="frame" x="68" y="26" width="219" height="13"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="13" id="3dQ-b7-TGQ"/>
                                             </constraints>
@@ -49,12 +49,12 @@
                                         </label>
                                     </subviews>
                                     <constraints>
+                                        <constraint firstItem="XRZ-3m-plb" firstAttribute="leading" secondItem="ERJ-yu-u9w" secondAttribute="leadingMargin" id="6Wy-XX-llO"/>
                                         <constraint firstItem="psc-dc-v2A" firstAttribute="leading" secondItem="XRZ-3m-plb" secondAttribute="trailing" constant="8" id="G6u-af-PV1"/>
                                         <constraint firstItem="lSi-Yb-04b" firstAttribute="leading" secondItem="XRZ-3m-plb" secondAttribute="trailing" constant="8" id="GTO-f7-rIZ"/>
                                         <constraint firstItem="psc-dc-v2A" firstAttribute="top" secondItem="ERJ-yu-u9w" secondAttribute="top" constant="3" id="R40-QI-2zP"/>
                                         <constraint firstAttribute="trailing" secondItem="psc-dc-v2A" secondAttribute="trailing" id="VHt-2Y-sUw"/>
-                                        <constraint firstItem="XRZ-3m-plb" firstAttribute="leading" secondItem="ERJ-yu-u9w" secondAttribute="leading" constant="8" id="fec-m4-ndq"/>
-                                        <constraint firstItem="XRZ-3m-plb" firstAttribute="top" secondItem="ERJ-yu-u9w" secondAttribute="top" constant="1" id="h2n-jo-xnH"/>
+                                        <constraint firstItem="XRZ-3m-plb" firstAttribute="centerY" secondItem="ERJ-yu-u9w" secondAttribute="centerY" id="b8w-lT-Mqu"/>
                                         <constraint firstAttribute="trailing" secondItem="lSi-Yb-04b" secondAttribute="trailing" id="ho5-io-cvm"/>
                                         <constraint firstAttribute="bottom" secondItem="lSi-Yb-04b" secondAttribute="bottom" constant="4" id="hvM-Cn-SfI"/>
                                     </constraints>
@@ -100,12 +100,12 @@
                         </barButtonItem>
                     </toolbarItems>
                     <navigationItem key="navigationItem" title="Image Risizer" id="wD7-4j-61u">
-                        <barButtonItem key="leftBarButtonItem" image="settings.png" id="IYp-8u-nWu">
+                        <barButtonItem key="leftBarButtonItem" title="Settings" id="IYp-8u-nWu">
                             <connections>
                                 <segue destination="IbW-lM-obW" kind="modal" identifier="Settings" id="FxG-yG-9He"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" tag="1" systemItem="organize" id="eTh-ib-60b">
+                        <barButtonItem key="rightBarButtonItem" tag="1" title="Images" id="eTh-ib-60b">
                             <color key="tintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             <connections>
                                 <action selector="showPicker:" destination="CeM-1w-tyR" id="rY3-Ar-01F"/>
@@ -382,7 +382,4 @@
             <point key="canvasLocation" x="393" y="180"/>
         </scene>
     </scenes>
-    <resources>
-        <image name="settings.png" width="22" height="22"/>
-    </resources>
 </document>
