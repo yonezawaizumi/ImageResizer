@@ -609,7 +609,11 @@ enum {
     imagePickerController.showsNumberOfSelectedAssets = YES;
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSNumber *numberOfColumnsValue = [userDefaults objectForKey:USER_DEFAULTS_KEY_NUMBER_OF_COLUMNS];
-    imagePickerController.numberOfColumnsInPortrait = numberOfColumnsValue ? [numberOfColumnsValue integerValue] : DEFAULT_NUMBER_OF_COLUMNS;
+    NSUInteger numberOfColumns = numberOfColumnsValue ? [numberOfColumnsValue integerValue] : DEFAULT_NUMBER_OF_COLUMNS;
+    imagePickerController.numberOfColumnsInPortrait = numberOfColumns;
+    CGSize size = self.view.frame.size;
+    CGFloat ratio = size.width < size.height ? size.height / size.width : size.width / size.height;
+    imagePickerController.numberOfColumnsInLandscape = (NSUInteger)(ratio * numberOfColumns + 0.5);
     imagePickerController.showFirstAlbumDirectly = YES;
     imagePickerController.minimumNumberOfSelection = 0;
     imagePickerController.maximumNumberOfSelection = MAXIMUM_IMAGES_COUNT;
