@@ -99,7 +99,7 @@ static CGSize CGSizeScale(CGSize size, CGFloat scale) {
                 //[self.imageManager stopCachingImagesForAllAssets];
                 return;
             } else if (data) {
-                ((void (^)())data)();
+                ((void (^)(void))data)();
             }
         }
     });

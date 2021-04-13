@@ -26,7 +26,6 @@
 
 @property(nonatomic, strong) NSMutableArray *photoData;
 @property(strong, nonatomic) id modalView;
-@property(assign, nonatomic) NSInteger modalViewCancelIndex;
 @property(nonatomic, assign) BOOL dirty;
 @property(nonatomic, assign) BOOL initial;
 
@@ -108,10 +107,8 @@ enum {
 - (void)ApplicationDidEnterBackground
 {
     if (self.modalView) {
-        if ([self.modalView isKindOfClass:[UIAlertView class]]) {
-            [(UIAlertView *)self.modalView dismissWithClickedButtonIndex:self.modalViewCancelIndex animated:NO];
-        } else if([self.modalView isKindOfClass:[UIActionSheet class]]) {
-            [(UIActionSheet *)self.modalView dismissWithClickedButtonIndex:self.modalViewCancelIndex animated:NO];
+        if ([self.modalView isKindOfClass:[UIAlertController class]]) {
+            [(UIAlertController *)self.modalView dismissViewControllerAnimated:YES completion:nil];
         } else if([self.modalView isKindOfClass:[QBImagePickerController class]]) {
             [(QBImagePickerController *)self.modalView dismissViewControllerAnimated:NO completion:nil];
         }
@@ -176,15 +173,17 @@ enum {
         title = NSLocalizedString(@"Succeeded", nil);
         message = [NSString stringWithFormat:NSLocalizedString(@"Resized %d Photos", nil), succeeded];
     }
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title
-                                                    message:message
-                                                   delegate:self
-                                          cancelButtonTitle:nil
-                                          otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
-    alert.tag = AlertSaved;
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
+                                                                   message:message
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
+                                              style:UIAlertActionStyleDefault
+                                            handler:^(UIAlertAction *action) {
+        self.modalView = nil;
+        [self showPicker:nil];
+    }]];
     self.modalView = alert;
-    self.modalViewCancelIndex = 0;
-    [alert show];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)sendMail:(id)sender
@@ -201,30 +200,33 @@ enum {
     if (failed) {
         self.tableView.userInteractionEnabled = YES;
         [self updateButtons];
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Failed", nil)
-                                                        message:[NSString stringWithFormat:NSLocalizedString(@"Failed %d Resizing", nil), failed]
-                                                       delegate:self
-                                              cancelButtonTitle:nil
-                                              otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
-        alert.tag = AlertSaved;
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Failed", nil)
+                                                                       message:[NSString stringWithFormat:NSLocalizedString(@"Failed %d Resizing", nil), failed]
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action) {
+            self.modalView = nil;
+        }]];
         self.modalView = alert;
-        self.modalViewCancelIndex = 0;
-        [alert show];
+        [self presentViewController:alert animated:YES completion:nil];
         return;
     }
     
     if (![MFMailComposeViewController canSendMail]) {
         self.tableView.userInteractionEnabled = YES;
         [self updateButtons];
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Cannot Send Mail", nil)
-                                                        message:nil
-                                                       delegate:self
-                                              cancelButtonTitle:nil
-                                              otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
-        alert.tag = AlertMailDisabled;
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Cannot Send Mail", nil)
+                                                                       message:nil
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action) {
+            self.modalView = nil;
+            [self updateButtons];
+        }]];
         self.modalView = alert;
-        self.modalViewCancelIndex = 0;
-        [alert show];
+        [self presentViewController:alert animated:YES completion:nil];
         return;
     }
     
@@ -258,109 +260,6 @@ enum {
     self.tableView.userInteractionEnabled = YES;
     [self updateButtons];
 }
-
-- (void)tw:(id)sender
-{
-    if (self.photoData.count > 1) {
-        self.tableView.userInteractionEnabled = YES;
-        [self updateButtons];
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Only 1 Attached Photo", nil)
-                                                        message:nil
-                                                       delegate:self
-                                              cancelButtonTitle:nil
-                                              otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
-        alert.tag = AlertMailDisabled;
-        self.modalView = alert;
-        self.modalViewCancelIndex = 0;
-        [alert show];
-        return;
-    }
-    
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    NSNumber *leaveMailPhotos = [userDefaults objectForKey:USER_DEFAULTS_KEY_LEAVE_MAIL_PHOTOS];
-    
-    [self savePhotos:@selector(onSavedPhotosForTw) inAlbum:leaveMailPhotos && [leaveMailPhotos boolValue]];
-}
-
-- (void)onSavedPhotosForTw
-{
-    int failed = [self failedCount];
-    if (failed) {
-        self.tableView.userInteractionEnabled = YES;
-        [self updateButtons];
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Failed", nil)
-                                                        message:[NSString stringWithFormat:NSLocalizedString(@"Failed %d Resizing", nil), failed]
-                                                       delegate:self
-                                              cancelButtonTitle:nil
-                                              otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
-        alert.tag = AlertSaved;
-        self.modalView = alert;
-        self.modalViewCancelIndex = 0;
-        [alert show];
-        return;
-    }
-    
-    if (![SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter]) {
-        self.tableView.userInteractionEnabled = YES;
-        [self updateButtons];
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Cannot Tweet", nil)
-                                                        message:nil
-                                                       delegate:self
-                                              cancelButtonTitle:nil
-                                              otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
-        alert.tag = AlertMailDisabled;
-        self.modalView = alert;
-        self.modalViewCancelIndex = 0;
-        [alert show];
-        return;
-    }
-    
-    SLComposeViewController *viewController = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
-    
-    /*[viewController setCompletionHandler:^(SLComposeViewControllerResult result) {
-        switch (result) {
-            case SLComposeViewControllerResultDone:
-                break;
-            case SLComposeViewControllerResultCancelled:
-                break;
-        }
-    }];*/
-
-    
-    if (![viewController addImage:[UIImage imageWithData:((PhotoData *)self.photoData[0]).resizedImageData]]) {
-        self.tableView.userInteractionEnabled = YES;
-        [self updateButtons];
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Cannot Attach Photo", nil)
-                                                        message:nil
-                                                       delegate:self
-                                              cancelButtonTitle:nil
-                                              otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
-        alert.tag = AlertMailDisabled;
-        self.modalView = alert;
-        self.modalViewCancelIndex = 0;
-        [alert show];
-        return;
-    }
-    
-    [viewController setCompletionHandler:^(SLComposeViewControllerResult result) {
-        [self dismissViewControllerAnimated:YES completion:nil];
-        switch (result) {
-            case SLComposeViewControllerResultCancelled:
-                self.tableView.userInteractionEnabled = YES;
-                [self updateButtons];
-                break;
-            default:
-                [self clearAll:nil];
-                //self.initial = YES;
-                self.tableView.userInteractionEnabled = YES;
-                [self updateButtons];
-                [self showPicker:nil];
-                break;
-        }
-    }];
-    [self presentViewController:viewController animated:YES completion:nil];
-}
-
 
 - (void)createTemporaryAlbumWithCompletionHandler:(void (^)(PHAssetCollection *albim))handler
 {
@@ -473,15 +372,23 @@ enum {
 - (void)clearAll:(id)sender
 {
     if (sender && self.dirty) {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Clear All Resizing", nil)
-                                                        message:nil
-                                                       delegate:self
-                                              cancelButtonTitle:NSLocalizedString(@"Abort", nil)
-                                              otherButtonTitles:NSLocalizedString(@"Clear", nil), nil];
-        alert.tag = AlertClearAll;
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Clear All Resizing", nil)
+                                                                       message:nil
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Abort", nil)
+                                                  style:UIAlertActionStyleCancel
+                                                handler:^(UIAlertAction *action) {
+            self.modalView = nil;
+        }]];
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Clear", nil)
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action) {
+            self.modalView = nil;
+            [self clearAll:nil];
+            [self showPicker:nil];
+        }]];
         self.modalView = alert;
-        self.modalViewCancelIndex = 0;
-        [alert show];
+        [self presentViewController:alert animated:YES completion:nil];
     } else {
         self.photoData = nil;
         [self updatePhotoData:nil];
@@ -490,34 +397,28 @@ enum {
 
 - (void)uniformSizes:(id)sender
 {
-    UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:NSLocalizedString(@"Uniform Long Side Sizes", nil)
-                                                       delegate:self
-                                              cancelButtonTitle:nil
-                                         destructiveButtonTitle:nil
-                                              otherButtonTitles:nil];
-    for (NSNumber *length in [SizeManager sharedInstance].longSideLengths) {
-        [sheet addButtonWithTitle:[NSString stringWithFormat:NSLocalizedString(@"%@", nil), length]];
-    }
-    [sheet addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
-    sheet.cancelButtonIndex = sheet.numberOfButtons - 1;
+    UIAlertController *sheet = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Uniform Sizes", nil)
+                                                                   message:NSLocalizedString(@"Long Side", nil)
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
+    [[SizeManager sharedInstance].longSideLengths enumerateObjectsUsingBlock:^(id length, NSUInteger index, BOOL *stop) {
+        [sheet addAction:[UIAlertAction actionWithTitle:[NSString stringWithFormat:NSLocalizedString(@"%@", nil), length]
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action) {
+            for (PhotoData *photoData in self.photoData) {
+                photoData.longSideLength = [(NSNumber *)length intValue];
+            }
+            [self checkDirty];
+            self.modalView = nil;
+            [self.tableView reloadData];
+        }]];
+    }];
+    [sheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil)
+                                              style:UIAlertActionStyleCancel
+                                            handler:^(UIAlertAction *action) {
+        self.modalView = nil;
+    }]];
     self.modalView = sheet;
-    self.modalViewCancelIndex = self.photoData.count;
-    [sheet showFromBarButtonItem:self.uniformSizesButton animated:YES];
-}
-
-
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    self.modalView = nil;
-    NSArray *sizes = [SizeManager sharedInstance].longSideLengths;
-    if (buttonIndex < sizes.count) {
-        NSInteger longSideLength = [sizes[buttonIndex] integerValue];
-        for (PhotoData *photoData in self.photoData) {
-            photoData.longSideLength = longSideLength;
-        }
-        [self checkDirty];
-        [self.tableView reloadData];
-    }
+    [self presentViewController:sheet animated:YES completion:nil];
 }
 
 - (void)updatePhotoData:(NSMutableArray *)photoData
@@ -530,35 +431,6 @@ enum {
     [self.tableView reloadData];
 }
 
-- (void)alertView:(UIAlertView*)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    BOOL showSelectView = NO;
-    self.modalView = nil;
-    switch(alertView.tag) {
-        case AlertClearAll:
-            switch (buttonIndex) {
-                case 0:
-                    break;
-                case 1:
-                    [self clearAll:nil];
-                    showSelectView = YES;
-                    break;
-            }
-            break;
-        case AlertSaved:
-            showSelectView = YES;
-            break;
-        case AlertMailDisabled:
-            [self updateButtons];
-            break;
-        case AlertDenied:
-            break;
-    }
-    if (showSelectView) {
-        [self showPicker:nil];
-    }
-}
-
 - (void)showPicker:(id)sender
 {
     if (self.modalView && [self.modalView isKindOfClass:[QBImagePickerController class]]) {
@@ -569,12 +441,13 @@ enum {
         case PHAuthorizationStatusAuthorized:
             [self showPickerAnimated:sender != nil];
             break;
-        case PHAuthorizationStatusDenied:
-            messageKey = @"Photo Library Access Denied\n\n Please Allow Accessing At \"Settings - Privacy - Photos\"";
+        case PHAuthorizationStatusLimited:
+            messageKey = @"Photo Library Access Denied\n\n Please Allow Full Accessing At \"Settings - Privacy - Photos\"";
             break;
         case PHAuthorizationStatusRestricted:
             messageKey = @"Photo Library Access Denied\n\n Please Allow Accessing At \"Settings - General - Restrictions\"";
             break;
+        case PHAuthorizationStatusDenied:
         case PHAuthorizationStatusNotDetermined:
             [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
                 if (status == PHAuthorizationStatusAuthorized) {
@@ -588,15 +461,16 @@ enum {
             break;
     }
     if (messageKey) {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Denied", nil)
-                                                        message:NSLocalizedString(messageKey, nil)
-                                                       delegate:self
-                                              cancelButtonTitle:nil
-                                              otherButtonTitles:NSLocalizedString(@"OK", nil), nil];
-        alert.tag = AlertDenied;
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Denied", nil)
+                                                                       message:messageKey
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action) {
+            self.modalView = nil;
+        }]];
         self.modalView = alert;
-        self.modalViewCancelIndex = 0;
-        [alert show];
+        [self presentViewController:alert animated:YES completion:nil];
     }
 }
 
@@ -743,7 +617,6 @@ enum {
     self.clearAllButton.enabled = enabled;
     self.uniformSizesButton.enabled = enabled;
     self.sendMailButton.enabled = enabled && [MFMailComposeViewController canSendMail];
-    self.twButton.enabled = self.photoData.count == 1 && [SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter];
     self.saveButton.enabled = enabled;
 }
 

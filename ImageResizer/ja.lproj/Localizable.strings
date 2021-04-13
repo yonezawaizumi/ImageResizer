@@ -26,7 +26,8 @@
 "Clear All Resizing" = "写真を選びなおします";
 "Abort" = "中止";
 "Clear" = "選びなおす";
-"Uniform Long Side Sizes" = "長辺サイズをそろえます";
+"Uniform Sizes" = "サイズをそろえます";
+"Long Side" = "長辺サイズ";
 "Set" = "セット";
 "Cancel" = "キャンセル";
 "Cannot Send Mail" = "メールが送信できません";
@@ -37,5 +38,5 @@
 "Cannot Attach Photo" = "写真を添付できません";
 "Only 1 Attached Photo" = "写真は1枚しか添付できません";
 "Denied" = "アクセスできません";
-"Photo Library Access Denied\n\n Please Allow Accessing At \"Settings - Privacy - Photos\"" = "フォトライブラリーにアクセスできません\n\n\"設定 - プライバシー - 写真\"からアクセスを許可してください";
 "Photo Library Access Denied\n\n Please Allow Accessing At \"Settings - General - Restrictions\"" = "フォトライブラリーにアクセスできません\n\n\"設定 - 一般 - 機能制限\"からアクセスを許可してください";
+"Photo Library Access Denied\n\n Please Allow Full Accessing At \"Settings - Privacy - Photos\"" = "フォトライブラリーにフルアクセスできません\n\n\"設定 - プライバシー - 写真\"からすべての写真へのアクセスを許可してください";

@@ -19,7 +19,6 @@
 @property(nonatomic, strong) IBOutlet UIBarButtonItem *uniformSizesButton;
 @property(nonatomic, strong) IBOutlet UIBarButtonItem *sendMailButton;
 @property(nonatomic, strong) IBOutlet UIBarButtonItem *saveButton;
-@property(nonatomic, strong) IBOutlet UIBarButtonItem *twButton;
 @property(nonatomic, strong) IBOutlet UIBarButtonItem *settingsButton;
 
 - (IBAction)showPicker:(id)sender;
@@ -27,6 +26,5 @@
 - (IBAction)uniformSizes:(id)sender;
 - (IBAction)save:(id)sender;
 - (IBAction)sendMail:(id)sender;
-- (IBAction)tw:(id)sender;
 
 @end

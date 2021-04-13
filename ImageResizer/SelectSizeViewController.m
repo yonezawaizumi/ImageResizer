@@ -143,8 +143,11 @@ enum {
         [geoCoder reverseGeocodeLocation:location completionHandler:^(NSArray* placemarks, NSError* error){
             if ([placemarks count] > 0){
                 CLPlacemark *myPlacemark = [placemarks objectAtIndex:0];
-                NSArray *address = [myPlacemark.addressDictionary valueForKey:@"FormattedAddressLines"];
-                NSString *result = [address componentsJoinedByString:@""];
+                NSString *result = [NSString stringWithFormat:@"%@%@%@%@",
+                                    myPlacemark.administrativeArea,
+                                    myPlacemark.locality,
+                                    myPlacemark.thoroughfare,
+                                    myPlacemark.subThoroughfare];
                 NSRegularExpression *regexp = [NSRegularExpression regularExpressionWithPattern:@"^(?:〒\\d{3}-\\d{4}\\s+|\\d{7}\\s+)?(.+)"
                                                                                         options:0
                                                                                           error:nil];
