@@ -698,7 +698,7 @@ enum {
 {
     NSInteger orientation = [photoData.metadata[@"Orientation"] integerValue];
     CGImageRef imageRef = [photoData.image CGImage];
-    CGBitmapInfo bitmapInfo = CGImageGetBitmapInfo(imageRef);
+    CGBitmapInfo bitmapInfo = (CGBitmapInfo)kCGImageAlphaNoneSkipLast;//CGImageGetBitmapInfo(imageRef);
     CGColorSpaceRef colorSpaceInfo = CGImageGetColorSpace(imageRef);
     size_t bitsPerComponent = CGImageGetBitsPerComponent(imageRef);
 /*
