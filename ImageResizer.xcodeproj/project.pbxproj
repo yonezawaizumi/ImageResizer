@@ -37,6 +37,9 @@
 		0661F7E21C09CB7B00E05841 /* statusicon_notload.png in Resources */ = {isa = PBXBuildFile; fileRef = 0661F7DF1C09CB7B00E05841 /* statusicon_notload.png */; };
 		0661F7E31C09CB7B00E05841 /* statusicon_notload@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0661F7E01C09CB7B00E05841 /* statusicon_notload@2x.png */; };
 		066D570D2625DD4C000BDD93 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 066D570C2625DD4C000BDD93 /* Launch Screen.storyboard */; };
+		066D571F26270E57000BDD93 /* ImageResizerBG.png in Resources */ = {isa = PBXBuildFile; fileRef = 066D571E26270E57000BDD93 /* ImageResizerBG.png */; };
+		066D572426271C0B000BDD93 /* ImageResizerLogo.png in Resources */ = {isa = PBXBuildFile; fileRef = 066D572226271C0B000BDD93 /* ImageResizerLogo.png */; };
+		066D572526271C0B000BDD93 /* ImageResizerLogo.xcf in Resources */ = {isa = PBXBuildFile; fileRef = 066D572326271C0B000BDD93 /* ImageResizerLogo.xcf */; };
 		066F2EAE1880FF0E0031A08B /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 066F2EAD1880FF0E0031A08B /* MessageUI.framework */; };
 		066F81C11C24C8640024B34B /* NumberOfColumnsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 066F81C01C24C8640024B34B /* NumberOfColumnsViewController.m */; };
 		068C28221877FBA700056ED9 /* TableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 065CF3D618740DFF008C3DFC /* TableViewController.m */; };
@@ -108,6 +111,9 @@
 		0661F7DF1C09CB7B00E05841 /* statusicon_notload.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = statusicon_notload.png; sourceTree = "<group>"; };
 		0661F7E01C09CB7B00E05841 /* statusicon_notload@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "statusicon_notload@2x.png"; sourceTree = "<group>"; };
 		066D570C2625DD4C000BDD93 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		066D571E26270E57000BDD93 /* ImageResizerBG.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ImageResizerBG.png; sourceTree = "<group>"; };
+		066D572226271C0B000BDD93 /* ImageResizerLogo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ImageResizerLogo.png; sourceTree = "<group>"; };
+		066D572326271C0B000BDD93 /* ImageResizerLogo.xcf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ImageResizerLogo.xcf; sourceTree = "<group>"; };
 		066F2EAD1880FF0E0031A08B /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		066F81BF1C24C8640024B34B /* NumberOfColumnsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NumberOfColumnsViewController.h; sourceTree = "<group>"; };
 		066F81C01C24C8640024B34B /* NumberOfColumnsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NumberOfColumnsViewController.m; sourceTree = "<group>"; };
@@ -196,6 +202,8 @@
 		065CF36A18740546008C3DFC /* ImageResizer */ = {
 			isa = PBXGroup;
 			children = (
+				066D572226271C0B000BDD93 /* ImageResizerLogo.png */,
+				066D572326271C0B000BDD93 /* ImageResizerLogo.xcf */,
 				06CF9A3418949E1A00F17A59 /* Resources */,
 				065CF37318740546008C3DFC /* AppDelegate.h */,
 				065CF37418740546008C3DFC /* AppDelegate.m */,
@@ -292,6 +300,7 @@
 		06CF9A3418949E1A00F17A59 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				066D571E26270E57000BDD93 /* ImageResizerBG.png */,
 				0661F7DF1C09CB7B00E05841 /* statusicon_notload.png */,
 				0661F7E01C09CB7B00E05841 /* statusicon_notload@2x.png */,
 				0661F7DE1C09CB7B00E05841 /* statusicon_notload@3x.png */,
@@ -383,8 +392,11 @@
 				0661F7D71C09971800E05841 /* QBImagePicker.storyboard in Resources */,
 				0661F7E31C09CB7B00E05841 /* statusicon_notload@2x.png in Resources */,
 				0661F7E21C09CB7B00E05841 /* statusicon_notload.png in Resources */,
+				066D572526271C0B000BDD93 /* ImageResizerLogo.xcf in Resources */,
+				066D571F26270E57000BDD93 /* ImageResizerBG.png in Resources */,
 				0661F7D01C09971800E05841 /* QBImagePicker.strings in Resources */,
 				06CD682A1876602900ACA6A9 /* Localizable.strings in Resources */,
+				066D572426271C0B000BDD93 /* ImageResizerLogo.png in Resources */,
 				0661F7E11C09CB7B00E05841 /* statusicon_notload@3x.png in Resources */,
 				065CF36F18740546008C3DFC /* InfoPlist.strings in Resources */,
 				066D570D2625DD4C000BDD93 /* Launch Screen.storyboard in Resources */,
