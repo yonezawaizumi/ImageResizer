@@ -30,8 +30,8 @@
             filePath = "ImageResizer/TableViewController.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "724"
-            endingLineNumber = "724"
+            startingLineNumber = "726"
+            endingLineNumber = "726"
             landmarkName = "-prepareResizedImage:size:"
             landmarkType = "7">
          </BreakpointContent>
