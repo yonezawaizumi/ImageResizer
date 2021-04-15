@@ -35,6 +35,7 @@
         NSInteger lengths[] = RESIZED_LONG_SIDE_LENGTHS;
         NSInteger count = sizeof (lengths) / sizeof (lengths[0]);
         NSMutableArray *ary = [NSMutableArray arrayWithCapacity:count];
+        [ary addObject:[NSNumber numberWithInteger:-1]];
         for (int i = 0; i < count; ++i) {
             [ary addObject:[NSNumber numberWithInteger:lengths[i]]];
         }
@@ -45,6 +46,10 @@
 
 - (CGSize)resizedSizeWithLongSideLength:(NSInteger)longSideLength originalSize:(CGSize)originalSize;
 {
+    if (longSideLength < 0) {
+        return originalSize;
+    }
+    
     for (NSNumber *length in self.longSideLengths) {
         NSInteger len = [length integerValue];
         if (longSideLength <= len) {

@@ -40,3 +40,4 @@
 "Denied" = "アクセスできません";
 "Photo Library Access Denied\n\n Please Allow Accessing At \"Settings - General - Restrictions\"" = "フォトライブラリーにアクセスできません\n\n\"設定 - 一般 - 機能制限\"からアクセスを許可してください";
 "Photo Library Access Denied\n\n Please Allow Full Accessing At \"Settings - Privacy - Photos\"" = "フォトライブラリーにフルアクセスできません\n\n\"設定 - プライバシー - 写真\"からすべての写真へのアクセスを許可してください";
+"Original" = "元のサイズ";

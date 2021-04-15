@@ -400,12 +400,14 @@ enum {
     UIAlertController *sheet = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Uniform Sizes", nil)
                                                                    message:NSLocalizedString(@"Long Side", nil)
                                                             preferredStyle:UIAlertControllerStyleActionSheet];
-    [[SizeManager sharedInstance].longSideLengths enumerateObjectsUsingBlock:^(id length, NSUInteger index, BOOL *stop) {
-        [sheet addAction:[UIAlertAction actionWithTitle:[NSString stringWithFormat:NSLocalizedString(@"%@", nil), length]
+    [[SizeManager sharedInstance].longSideLengths enumerateObjectsUsingBlock:^(id lengthNumber, NSUInteger index, BOOL *stop) {
+        NSInteger length = [(NSNumber *)lengthNumber intValue];
+        NSString *label = length > 0 ? [NSString stringWithFormat:NSLocalizedString(@"%ld", nil), (long)length] : NSLocalizedString(@"Original", nil);
+        [sheet addAction:[UIAlertAction actionWithTitle:label
                                                   style:UIAlertActionStyleDefault
                                                 handler:^(UIAlertAction *action) {
             for (PhotoData *photoData in self.photoData) {
-                photoData.longSideLength = [(NSNumber *)length intValue];
+                photoData.longSideLength = length;
             }
             [self checkDirty];
             self.modalView = nil;
