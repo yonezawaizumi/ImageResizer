@@ -12,6 +12,8 @@
 @interface PhotoData : NSObject
 
 @property(nonatomic, strong) UIImage *image;
+@property(nonatomic, strong) NSData *originalImageData;
+@property(nonatomic, strong) NSString *originalMimeType;
 @property(nonatomic, strong) NSData *resizedImageData;
 @property(nonatomic, strong) UIImage *thumbnail;
 @property(nonatomic, assign) CGSize originalSize;

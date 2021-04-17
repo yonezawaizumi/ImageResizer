@@ -14,8 +14,8 @@
             filePath = "ImageResizer/TableViewController.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "325"
-            endingLineNumber = "325"
+            startingLineNumber = "326"
+            endingLineNumber = "326"
             landmarkName = "-savePhotos:inAlbum:"
             landmarkType = "7">
          </BreakpointContent>
@@ -30,8 +30,8 @@
             filePath = "ImageResizer/TableViewController.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "726"
-            endingLineNumber = "726"
+            startingLineNumber = "727"
+            endingLineNumber = "727"
             landmarkName = "-prepareResizedImage:size:"
             landmarkType = "7">
          </BreakpointContent>

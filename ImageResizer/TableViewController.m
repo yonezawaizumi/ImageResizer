@@ -11,6 +11,7 @@
 #import <MessageUI/MFMailComposeViewController.h>
 #import <Photos/Photos.h>
 #import <Social/Social.h>
+#import <UniformTypeIdentifiers/UTType.h>
 #import "AppDelegate.h"
 #import "TableViewController.h"
 #import "SelectSizeViewController.h"
@@ -526,30 +527,30 @@ enum {
                                    options:nil
                              resultHandler:^(UIImage *result, NSDictionary *info) {
                                  photoData.thumbnail = result;
-                                 dispatch_async(dispatch_get_main_queue(), ^{
-                                     [self.tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
-                                 });
-                             }
-         ];
-        [imageManager requestImageDataForAsset:asset
-                                       options:nil
-                                 resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary * info) {
-                                     CGImageSourceRef imageSource = CGImageSourceCreateWithData((CFDataRef)imageData, nil);
-                                     NSDictionary *metadata = (__bridge NSDictionary *)CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil);
-                                     if (metadata) {
-                                         NSString *dateString = metadata[(NSString *)kCGImagePropertyExifDictionary][@"DateTimeOriginal"];
-                                         if (dateString) {
-                                             photoData.metadata = [NSMutableDictionary dictionaryWithDictionary:metadata];
-                                             photoData.dateString = [NSString stringWithFormat:NSLocalizedString(@"%@", nil), dateString];
-                                             dispatch_async(dispatch_get_main_queue(), ^{
-                                                 [self.tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
-                                             });
-                                         }
-                                     }
-                                     CFRelease(imageSource);
-                                     photoData.image = [UIImage imageWithData:imageData];
-                                 }
-         ];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+            });
+        }];
+        [imageManager requestImageDataAndOrientationForAsset:asset
+                                                     options:nil
+                                               resultHandler:^(NSData *imageData, NSString *dataUTI, CGImagePropertyOrientation orientation, NSDictionary * info) {
+            photoData.originalImageData = imageData;
+            photoData.originalMimeType = [UTType typeWithIdentifier:dataUTI].preferredMIMEType;
+            CGImageSourceRef imageSource = CGImageSourceCreateWithData((CFDataRef)imageData, nil);
+            NSDictionary *metadata = (__bridge NSDictionary *)CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil);
+            if (metadata) {
+                NSString *dateString = metadata[(NSString *)kCGImagePropertyExifDictionary][@"DateTimeOriginal"];
+            if (dateString) {
+                photoData.metadata = [NSMutableDictionary dictionaryWithDictionary:metadata];
+                photoData.dateString = [NSString stringWithFormat:NSLocalizedString(@"%@", nil), dateString];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+                });
+                }
+            }
+            CFRelease(imageSource);
+            photoData.image = [UIImage imageWithData:imageData];
+        }];
         /*NSDictionary *metadata = dict[@"metadata"];
         photoData.metadata = [NSMutableDictionary dictionaryWithDictionary:metadata];
         NSString *dateString = photoData.metadata[(NSString *)kCGImagePropertyExifDictionary][@"DateTimeOriginal"];
