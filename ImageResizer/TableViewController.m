@@ -163,7 +163,7 @@ enum {
     self.tableView.userInteractionEnabled = YES;
     [self updateButtons];
     int failed = [self failedCount];
-    int succeeded = (int)self.photoData.count - failed;
+    int succeeded = [self succeededCount];
     NSString *title;
     NSString *message;
     if (failed) {
@@ -238,8 +238,8 @@ enum {
     
     int index = 0;
     for (PhotoData *photoData in self.photoData) {
-        [mailViewController addAttachmentData:photoData.resizedImageData
-                                     mimeType:@"image/jpeg"
+        [mailViewController addAttachmentData:photoData.resizedImageData ? photoData.resizedImageData : photoData.originalImageData
+                                     mimeType:photoData.resizedImageData ? @"image/jpeg" : photoData.originalMimeType
                                      fileName:[NSString stringWithFormat:@"Image%d.jpg", ++index]];
     }
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -322,6 +322,9 @@ enum {
         }
         for (int index = 0; index < count; ++index) {
             PhotoData *photoData = self.photoData[index];
+            if (photoData.longSideLength < 0) {
+                continue;
+            }
             CGSize size = [sizes[index] CGSizeValue];
             CGImageRef imageRef = [self prepareResizedImage:photoData size:size];
 
@@ -363,11 +366,22 @@ enum {
 {
     int failed = 0;
     for (PhotoData *photoData in self.photoData) {
-        if (!photoData.resizedImageData) {
+        if (!photoData.resizedImageData && photoData.longSideLength > 0) {
             ++failed;
         }
     }
     return failed;
+}
+
+- (int)succeededCount
+{
+    int succeeded = 0;
+    for (PhotoData *photoData in self.photoData) {
+        if (photoData.resizedImageData) {
+            ++succeeded;
+        }
+    }
+    return succeeded;
 }
 
 - (void)clearAll:(id)sender
