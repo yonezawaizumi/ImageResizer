@@ -14,9 +14,9 @@
             filePath = "ImageResizer/TableViewController.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "329"
-            endingLineNumber = "329"
-            landmarkName = "-savePhotos:inAlbum:"
+            startingLineNumber = "332"
+            endingLineNumber = "332"
+            landmarkName = "-mailComposeController:didFinishWithResult:error:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -30,9 +30,9 @@
             filePath = "ImageResizer/TableViewController.m"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "741"
-            endingLineNumber = "741"
-            landmarkName = "-prepareResizedImage:size:"
+            startingLineNumber = "744"
+            endingLineNumber = "744"
+            landmarkName = "-mailComposeController:didFinishWithResult:error:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

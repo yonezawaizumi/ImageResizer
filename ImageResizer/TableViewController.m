@@ -260,6 +260,9 @@ enum {
     [controller dismissViewControllerAnimated:YES completion:nil];
     self.tableView.userInteractionEnabled = YES;
     [self updateButtons];
+    if (self.initial) {
+        [self showPicker:nil];
+    }
 }
 
 - (void)createTemporaryAlbumWithCompletionHandler:(void (^)(PHAssetCollection *albim))handler
