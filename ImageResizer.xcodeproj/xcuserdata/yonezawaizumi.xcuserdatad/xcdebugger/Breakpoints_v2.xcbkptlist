@@ -16,7 +16,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "332"
             endingLineNumber = "332"
-            landmarkName = "-mailComposeController:didFinishWithResult:error:"
+            landmarkName = "-savePhotos:inAlbum:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -32,7 +32,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "744"
             endingLineNumber = "744"
-            landmarkName = "-mailComposeController:didFinishWithResult:error:"
+            landmarkName = "-prepareResizedImage:size:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

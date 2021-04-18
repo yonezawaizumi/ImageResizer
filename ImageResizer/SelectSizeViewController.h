@@ -15,7 +15,7 @@
 
 @end
 
-@interface SelectSizeViewController : UIViewController<UITableViewDataSource, UITableViewDelegate>
+@interface SelectSizeViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate>
 
 @property(nonatomic, strong) IBOutlet UITableView *tableView;
 @property(nonatomic, strong) PhotoData *photoData;
