@@ -249,18 +249,19 @@ enum {
 
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
 {
+    BOOL showPicker = NO;
     switch (result) {
         case MFMailComposeResultCancelled:
             break;
         default:
             [self clearAll:nil];
-            self.initial = YES;
+            showPicker = YES;
             break;
     }
     [controller dismissViewControllerAnimated:YES completion:nil];
     self.tableView.userInteractionEnabled = YES;
     [self updateButtons];
-    if (self.initial) {
+    if (showPicker) {
         [self showPicker:nil];
     }
 }
