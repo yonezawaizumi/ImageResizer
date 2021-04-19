@@ -470,7 +470,7 @@ enum {
             break;
         case PHAuthorizationStatusDenied:
         case PHAuthorizationStatusNotDetermined:
-            [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+            [PHPhotoLibrary requestAuthorizationForAccessLevel:PHAccessLevelAddOnly handler:^(PHAuthorizationStatus status) {
                 if (status == PHAuthorizationStatusAuthorized) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         if (!self.modalView || ![self.modalView isKindOfClass:[QBImagePickerController class]]) {
